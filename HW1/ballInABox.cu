@@ -67,9 +67,9 @@ void setInitailConditions()
 	Position.y = 0.0;
 	Position.z = 0.0;
 	
-	Velocity.x = 4.0;
-	Velocity.y = 4.0;
-	Velocity.z = 4.0;
+	Velocity.x = 8.0;
+	Velocity.y = 8.0;
+	Velocity.z = 8.0;
 	
 	Force.x = 0.0;
 	Force.y = 0.0;
@@ -143,7 +143,7 @@ void getForces()
 	// Define a bounce coefficient
 	float bounce = 2000;
 	// Define bounds and variable for randomness in the system
-	int r_min = 0, r_max = 200, randomness;
+	int r_min = -200, r_max = 150, randomness;
 	
 	// Reset forces
 	Force.x = 0.0;
