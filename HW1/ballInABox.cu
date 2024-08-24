@@ -67,9 +67,9 @@ void setInitailConditions()
 	Position.y = 0.0;
 	Position.z = 0.0;
 	
-	Velocity.x = 8.0;
-	Velocity.y = 8.0;
-	Velocity.z = 8.0;
+	Velocity.x = 16.0;
+	Velocity.y = 16.0;
+	Velocity.z = 16.0;
 	
 	Force.x = 0.0;
 	Force.y = 0.0;
@@ -140,10 +140,14 @@ void drawPicture()
 void getForces()
 {
 	// !!!! you probably should work on these guys/gals.
+	// Calculate the radius of the sphere
+	float SphereRadius = SphereDiameter/2;
+	// Cacluate half the length of the box
+	float HalfLength = BoxSideLength/2;
 	// Define a bounce coefficient
 	float bounce = 2000;
-	// Define bounds and variable for randomness in the system
-	int r_min = -200, r_max = 150, randomness;
+	// Define random number bounds and declare the variable for randomness in the system
+	int r_min = -150, r_max = 150, randomness;
 	
 	// Reset forces
 	Force.x = 0.0;
@@ -151,22 +155,23 @@ void getForces()
 	Force.z = 0.0;
 
 	// compare position of the sphere with the boundaries of the box
-	if(Position.x+SphereDiameter/2.0 >= BoxSideLength/2.0 || Position.x-SphereDiameter/2.0 <= -BoxSideLength/2.0)
+	// x coordinate
+	if(Position.x+SphereRadius >= HalfLength || Position.x-SphereRadius <= -HalfLength)
 	{
 		randomness = rand() % (r_max - r_min + 1) + r_min;
-		Force.x = -(bounce+randomness)*Velocity.x;
+		Force.x += -(bounce+randomness)*Velocity.x;
 	}
-	
-	if(Position.y+SphereDiameter/2.0 >= BoxSideLength/2.0 || Position.y-SphereDiameter/2.0 <= -BoxSideLength/2.0)
+	// y coordinate
+	if(Position.y+SphereRadius >= HalfLength || Position.y-SphereRadius <= -HalfLength)
 	{
 		randomness = rand() % (r_max - r_min + 1) + r_min; 
-		Force.y = -(bounce+randomness)*Velocity.y;
+		Force.y += -(bounce+randomness)*Velocity.y;
 	}
-	
-	if(Position.z+SphereDiameter/2.0 >= BoxSideLength/2.0 || Position.z-SphereDiameter/2.0 <= -BoxSideLength/2.0)
+	// z coordinate
+	if(Position.z+SphereRadius >= HalfLength || Position.z-SphereRadius <= -HalfLength)
 	{
 		randomness = rand() % (r_max - r_min + 1) + r_min; 
-		Force.z = -(bounce+randomness)*Velocity.z;
+		Force.z += -(bounce+randomness)*Velocity.z;
 	}
 }
 
