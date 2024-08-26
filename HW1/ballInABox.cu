@@ -67,9 +67,9 @@ void setInitailConditions()
 	Position.y = 0.0;
 	Position.z = 0.0;
 	
-	Velocity.x = 16.0;
-	Velocity.y = 16.0;
-	Velocity.z = 16.0;
+	Velocity.x = 10.0;
+	Velocity.y = 9.0;
+	Velocity.z = 12.0;
 	
 	Force.x = 0.0;
 	Force.y = 0.0;
@@ -93,7 +93,7 @@ void drawPicture()
 	
 	float halfSide = BoxSideLength/2.0;
 	
-	glColor3d(1.0, 1.0, 0.0);
+	glColor3d(0.0, 0.501960784, 0.501960784);
 	glPushMatrix();
 		glTranslatef(Position.x, Position.y, Position.z);
 		glutSolidSphere(SphereDiameter/2.0, 30, 30);
@@ -140,39 +140,82 @@ void drawPicture()
 void getForces()
 {
 	// !!!! you probably should work on these guys/gals.
+	
 	// Calculate the radius of the sphere
 	float SphereRadius = SphereDiameter/2;
 	// Cacluate half the length of the box
 	float HalfLength = BoxSideLength/2;
 	// Define a bounce coefficient
-	float bounce = 2000;
+	float bounce = 20000;
 	// Define random number bounds and declare the variable for randomness in the system
-	int r_min = -150, r_max = 150, randomness;
+	int r_min = 0, r_max = 1000, randomness;
 	
 	// Reset forces
 	Force.x = 0.0;
 	Force.y = 0.0;
 	Force.z = 0.0;
 
+	// Physics solution
 	// compare position of the sphere with the boundaries of the box
 	// x coordinate
-	if(Position.x+SphereRadius >= HalfLength || Position.x-SphereRadius <= -HalfLength)
+	if(Position.x+SphereRadius >= HalfLength)
 	{
 		randomness = rand() % (r_max - r_min + 1) + r_min;
-		Force.x += -(bounce+randomness)*Velocity.x;
+		Force.x += -(bounce+randomness)*((Position.x+SphereRadius) - HalfLength);
 	}
+	else if(Position.x-SphereRadius <= -HalfLength)
+	{
+		randomness = rand() % (r_max - r_min + 1) + r_min;
+		Force.x += (bounce+randomness)*(-HalfLength - (Position.x-SphereRadius));
+	}
+	
 	// y coordinate
-	if(Position.y+SphereRadius >= HalfLength || Position.y-SphereRadius <= -HalfLength)
+	if(Position.y+SphereRadius >= HalfLength)
 	{
-		randomness = rand() % (r_max - r_min + 1) + r_min; 
-		Force.y += -(bounce+randomness)*Velocity.y;
+		randomness = rand() % (r_max - r_min + 1) + r_min;
+		Force.y += -(bounce+randomness)*((Position.y+SphereRadius) - HalfLength);
 	}
+	else if(Position.y-SphereRadius <= -HalfLength)
+	{
+		randomness = rand() % (r_max - r_min + 1) + r_min;
+		Force.y += (bounce+randomness)*(-HalfLength - (Position.y-SphereRadius));
+	}
+	
 	// z coordinate
-	if(Position.z+SphereRadius >= HalfLength || Position.z-SphereRadius <= -HalfLength)
+	if(Position.z+SphereRadius >= HalfLength)
 	{
-		randomness = rand() % (r_max - r_min + 1) + r_min; 
-		Force.z += -(bounce+randomness)*Velocity.z;
+		randomness = rand() % (r_max - r_min + 1) + r_min;
+		Force.z += -(bounce+randomness)*((Position.z+SphereRadius) - HalfLength);
 	}
+	else if(Position.z-SphereRadius <= -HalfLength)
+	{
+		randomness = rand() % (r_max - r_min + 1) + r_min;
+		Force.z += (bounce+randomness)*(-HalfLength - (Position.z-SphereRadius));
+	}
+
+	// Quick and easy solution
+	// bounce = 2000;
+	// // Compare position of the sphere with the boundaries of the box
+	// // x coordinate
+	// if(Position.x+SphereRadius >= HalfLength || Position.x-SphereRadius <= -HalfLength)
+	// {
+	// 	randomness = rand() % (r_max - r_min + 1) + r_min;
+	// 	Force.x += -(bounce+randomness)*Velocity.x;
+	// }
+	
+	// // y coordinate
+	// if(Position.y+SphereRadius >= HalfLength || Position.y-SphereRadius <= -HalfLength)
+	// {
+	// 	randomness = rand() % (r_max - r_min + 1) + r_min; 
+	// 	Force.y += -(bounce+randomness)*Velocity.y;
+	// }
+	
+	// // z coordinate
+	// if(Position.z+SphereRadius >= HalfLength || Position.z-SphereRadius <= -HalfLength)
+	// {
+	// 	randomness = rand() % (r_max - r_min + 1) + r_min; 
+	// 	Force.z += -(bounce+randomness)*Velocity.z;
+	// }
 }
 
 void updatePositions()
