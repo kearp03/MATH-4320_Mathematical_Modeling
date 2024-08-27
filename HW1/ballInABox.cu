@@ -194,7 +194,7 @@ void getForces()
 	}
 
 	// Quick and easy solution
-	// bounce = 2000;
+	// bounce = 2/Dt;
 	// // Compare position of the sphere with the boundaries of the box
 	// // x coordinate
 	// if(Position.x+SphereRadius >= HalfLength || Position.x-SphereRadius <= -HalfLength)
