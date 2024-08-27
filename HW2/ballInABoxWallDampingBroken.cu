@@ -71,9 +71,9 @@ void setInitailConditions()
 	Position.y = 0.0;
 	Position.z = 0.0;
 	
-	Velocity.x = 11.0;
-	Velocity.y = 10.0;
-	Velocity.z = 10.0;
+	Velocity.x = 10.0;
+	Velocity.y = 12.0;
+	Velocity.z = 15.0;
 	
 	Force.x = 0.0;
 	Force.y = 0.0;
@@ -139,8 +139,8 @@ void getForces()
 {
 	float wallStiffness = 10000.0;
 	float halfSide = BoxSideLength/2.0;
-	float howMuch;
 	float ballRadius = SphereDiameter/2.0;
+	float b = 2;
 	
 	Force.x = 0.0;
 	Force.y = 0.0;
@@ -148,35 +148,35 @@ void getForces()
 	
 	if((Position.x - ballRadius) < -halfSide)
 	{
-		howMuch = -halfSide - (Position.x - ballRadius);
-		Force.x += wallStiffness*howMuch;
+		Force.x += wallStiffness*(-halfSide - (Position.x - ballRadius));
+		Force.x += -b*Velocity.x;
 	}
 	else if(halfSide < (Position.x + ballRadius))
 	{
-		howMuch = (Position.x + ballRadius) - halfSide;
-		Force.x -= wallStiffness*howMuch;
+		Force.x += -wallStiffness*((Position.x + ballRadius) - halfSide);
+		Force.x += -b*Velocity.x;
 	}
-	
+
 	if((Position.y - ballRadius) < -halfSide)
 	{
-		howMuch = -halfSide - (Position.y - ballRadius);
-		Force.y += wallStiffness*howMuch;
+		Force.y += wallStiffness*(-halfSide - (Position.y - ballRadius));
+		Force.y += -b*Velocity.y;
 	}
 	else if(halfSide < (Position.y + ballRadius))
 	{
-		howMuch = (Position.y + ballRadius) - halfSide;
-		Force.y -= wallStiffness*howMuch;
+		Force.y += -wallStiffness*((Position.y + ballRadius) - halfSide);
+		Force.y += -b*Velocity.y;
 	}
-	
+
 	if((Position.z - ballRadius) < -halfSide)
 	{
-		howMuch = -halfSide - (Position.z - ballRadius);
-		Force.z += wallStiffness*howMuch;
+		Force.z += wallStiffness*(-halfSide - (Position.z - ballRadius));
+		Force.z += -b*Velocity.z;
 	}
 	else if(halfSide < (Position.z + ballRadius))
 	{
-		howMuch = (Position.z + ballRadius) - halfSide;
-		Force.z -= wallStiffness*howMuch;
+		Force.z += -wallStiffness*((Position.z + ballRadius) - halfSide);
+		Force.z += -b*Velocity.z;
 	}
 }
 
@@ -206,7 +206,7 @@ void nBody()
 	getForces();
 	updatePositions();
 	drawPicture();
-	printf("\n Time = %f", RunTime);
+	printf("\n Time = %f \t Velocity.x = %.2f \t Velocity.y = %.2f \t Velocity.z = %.2f", RunTime, Velocity.x, Velocity.y, Velocity.z);
 	RunTime += Dt;
 	
 	if(TotalRunTime < RunTime)
