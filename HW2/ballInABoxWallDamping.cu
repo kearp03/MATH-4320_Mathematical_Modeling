@@ -71,9 +71,9 @@ void setInitailConditions()
 	Position.y = 0.0;
 	Position.z = 0.0;
 	
-	Velocity.x = 10.0;
-	Velocity.y = 12.0;
-	Velocity.z = 15.0;
+	Velocity.x = 50.0;
+	Velocity.y = 60.0;
+	Velocity.z = 75.0;
 	
 	Force.x = 0.0;
 	Force.y = 0.0;
@@ -137,10 +137,10 @@ void drawPicture()
 
 void getForces()
 {
-	float wallStiffness = 10000.0;
+	float wallStiffness = 100000.0;
 	float halfSide = BoxSideLength/2.0;
 	float ballRadius = SphereDiameter/2.0;
-	float b = 2;
+	float b = 12.5;
 	
 	Force.x = 0.0;
 	Force.y = 0.0;
