@@ -219,6 +219,7 @@ void getForces()
 	float halfSide = BoxSideLength/2.0;
 	float howMuch;
 	float ballRadius = SphereDiameter/2.0;
+	// float seperation;
 	
 	for(int i = 0; i < NUMBER_OF_BALLS; i++)
 	{
@@ -270,11 +271,31 @@ void getForces()
 			else k = wallStiffnessOut;
 			Force[i].z -= k*howMuch;
 		}
+		
 		for(int j = i + 1; j < NUMBER_OF_BALLS; j++)
 		{
+			float dx = Position[i].x-Position[j].x;
+			float dy = Position[i].y-Position[j].y;
+			float dz = Position[i].z-Position[j].z;
+			float r = sqrt(dx*dx + dy*dy + dz*dz);
 			// Maybe put something here and do it for i and the opposite for j.
 			// Might also need to think about magna-dude and unit vectors.
-			//
+			float overlap = SphereDiameter - r;
+			if(0.0 < overlap)
+			{
+				printf("He touched the butt (balls) %d %d ", i, j);
+				k = 100000.0;
+				
+				float force = -k*overlap*overlap;
+				Force[i].x += force*dx/r;
+				Force[j].x -= force*dx/r;
+
+				Force[i].y += force*dy/r;
+				Force[j].y -= force*dy/r;
+
+				Force[i].z += force*dz/r;
+				Force[j].z -= force*dz/r;
+			}
 			// An eletron get pulled over by a cop. 
 			// The cop says "Mam I clocked you at 8000 miles an hour."
 			// Ms. Electron replies "Oh thanks a lot!!! Now I'm lost."
