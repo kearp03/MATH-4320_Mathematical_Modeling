@@ -272,21 +272,21 @@ void getForces()
 			Force[i].z -= k*howMuch;
 		}
 		
-		for(int j = i + 1; j < NUMBER_OF_BALLS; j++)
+		for(int j = 0; j < i; j++)
+		//for(int j = i + 1; j < NUMBER_OF_BALLS; j++)
 		{
 			float dx = Position[i].x-Position[j].x;
 			float dy = Position[i].y-Position[j].y;
 			float dz = Position[i].z-Position[j].z;
-			float r = sqrt(dx*dx + dy*dy + dz*dz);
+			float r = sqrt(dx*dx + dy*dy + dz*dz);// + 0.0000001);
 			// Maybe put something here and do it for i and the opposite for j.
 			// Might also need to think about magna-dude and unit vectors.
 			float overlap = SphereDiameter - r;
 			if(0.0 < overlap)
 			{
-				printf("He touched the butt (balls) %d %d ", i, j);
-				k = 100000.0;
+				k = 10000.0;
 				
-				float force = -k*overlap*overlap;
+				float force = k*overlap*overlap;
 				Force[i].x += force*dx/r;
 				Force[j].x -= force*dx/r;
 
