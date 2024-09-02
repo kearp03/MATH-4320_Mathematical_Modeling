@@ -219,7 +219,11 @@ void getForces()
 	float halfSide = BoxSideLength/2.0;
 	float howMuch;
 	float ballRadius = SphereDiameter/2.0;
-	// float seperation;
+	float dx;
+	float dy;
+	float dz;
+	float r;
+	float overlap;
 	
 	for(int i = 0; i < NUMBER_OF_BALLS; i++)
 	{
@@ -273,28 +277,37 @@ void getForces()
 		}
 		
 		for(int j = 0; j < i; j++)
-		//for(int j = i + 1; j < NUMBER_OF_BALLS; j++)
+		// for(int j = i + 1; j < NUMBER_OF_BALLS; j++)
 		{
-			float dx = Position[i].x-Position[j].x;
-			float dy = Position[i].y-Position[j].y;
-			float dz = Position[i].z-Position[j].z;
-			float r = sqrt(dx*dx + dy*dy + dz*dz);// + 0.0000001);
+			// Find the change in position between the center of the pairs of balls
+			dx = Position[j].x-Position[i].x;
+			dy = Position[j].y-Position[i].y;
+			dz = Position[j].z-Position[i].z;
+			// Calculate the distance between them
+			r = sqrt(dx*dx + dy*dy + dz*dz);
 			// Maybe put something here and do it for i and the opposite for j.
 			// Might also need to think about magna-dude and unit vectors.
-			float overlap = SphereDiameter - r;
+			// Calculate how much the balls overlap
+			overlap = SphereDiameter - r;
+			// If the overlap is positive, then the balls are inside each other
 			if(0.0 < overlap)
 			{
-				k = 10000.0;
+				// High spring constant
+				k = 100000.0;
 				
-				float force = k*overlap*overlap;
-				Force[i].x += force*dx/r;
-				Force[j].x -= force*dx/r;
+				// Calculate the magnitude of the force
+				float forceMagitude = k*overlap;
+				
+				// Apply the magitude of the force to each of the unit vectors
+				// Subtract this force from i, add it to j
+				Force[i].x -= forceMagitude*dx/r;
+				Force[j].x += forceMagitude*dx/r;
 
-				Force[i].y += force*dy/r;
-				Force[j].y -= force*dy/r;
+				Force[i].y -= forceMagitude*dy/r;
+				Force[j].y += forceMagitude*dy/r;
 
-				Force[i].z += force*dz/r;
-				Force[j].z -= force*dz/r;
+				Force[i].z -= forceMagitude*dz/r;
+				Force[j].z += forceMagitude*dz/r;
 			}
 			// An eletron get pulled over by a cop. 
 			// The cop says "Mam I clocked you at 8000 miles an hour."
