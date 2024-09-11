@@ -234,7 +234,7 @@ void setInitailConditions()
 			tries++;
 			if (tries > maxTries)
 			{
-				printf("Maximum number of tries for a sphere has been reached. Exiting program");
+				printf("\n\nMaximum number of tries for a sphere has been reached. Exiting program\n");
 				exit(0);
 			}
 		}
