@@ -198,7 +198,7 @@ void setInitailConditions()
 	// You will be initially putting the asteroids inside a big sphere 
 	// so you will need a local variable call it maxSphereSize and two other local variables
 	// call them angle1 and angle2.
-	float maxSphereSize = 10.0; //max radius of the sphere
+	float maxSphereSize = 20.0; //max radius of the sphere in which the balls are placed
 	float angle1, angle2;
 	
 	int tries, maxTries = 100'000;
@@ -343,13 +343,17 @@ void getForces()
 					printf("\n Spheres %d and %d got to close. Make your sphere repultion stronger\n", i, j);
 					exit(0);
 				}
+				// Calculate realtive velocity
 				dvx = Velocity[j].x - Velocity[i].x;
 				dvy = Velocity[j].y - Velocity[i].y;
 				dvz = Velocity[j].z - Velocity[i].z;
 
+				// Compute dot product of relative velocity and relative position
 				inOut = dvx*dx + dvy*dy + dvz*dz;
 
+				// Calculate magnitude of force from bouncing
 				magnitude = kSphere*(SphereDiameter - d);
+				// If balls are separating, reduce the force
 				if(inOut > 0.0) magnitude *= kSphereReduction;
 				
 				// Doling out the force in the proper perfortions using unit vectors.
