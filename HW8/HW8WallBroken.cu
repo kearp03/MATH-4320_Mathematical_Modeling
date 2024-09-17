@@ -1,4 +1,4 @@
-//nvcc HW8WallBroken.cu -o bounce -lglut -lm -lGLU -lGL																													
+//nvcc HW8WallBroken.cu -o bounce -lglut -lm -lGLU -lGL
 //To stop hit "control c" in the window you launched it from.
 #include <iostream>
 #include <fstream>
@@ -97,11 +97,15 @@ void KeyPressed(unsigned char key, int x, int y)
 	
 	if(key == '1')
 	{
-		//float4 pos, vel;
-		//Pause = 1;
-		//terminalPrint();
+		float4 pos, vel;
+		Pause = 1;
+		terminalPrint();
 		// ??????????????????????????????????????????
 		//Print out center of mass and linear velocity of the system.
+		pos = centerOfMass();
+		vel = linearVelocity();
+		printf("\nCenter of mass: (%f, %f, %f)", pos.x, pos.y, pos.z);
+		printf("\nLinear velocity: (%f, %f, %f)\n", vel.x, vel.y, vel.z);
 	}
 	
 	// Turns tracers on and off
@@ -288,14 +292,25 @@ void drawPicture()
 float4 centerOfMass()
 {
 	float4 centerOfMass;
-	
+	float totalMass = 0.0;
+
 	centerOfMass.x = 0.0;
 	centerOfMass.y = 0.0;
 	centerOfMass.z = 0.0;
 	
 	// ????????????????????????????????????????????????????????
 	// Return the center of mass of the system.
+	for(int i = 0; i < NUMBER_OF_BALLS; i++)
+	{
+		centerOfMass.x += Position[i].x*SphereMass;
+		centerOfMass.y += Position[i].y*SphereMass;
+		centerOfMass.z += Position[i].z*SphereMass;
+		totalMass += SphereMass;
+	}
 
+	centerOfMass.x /= totalMass;
+	centerOfMass.y /= totalMass;
+	centerOfMass.z /= totalMass;
 	
 	return(centerOfMass);
 }
@@ -303,6 +318,7 @@ float4 centerOfMass()
 float4 linearVelocity()
 {
 	float4 linearVelocity;
+	float totalMass;
 	
 	linearVelocity.x = 0.0;
 	linearVelocity.y = 0.0;
@@ -310,6 +326,17 @@ float4 linearVelocity()
 	
 	// ????????????????????????????????????????????????????????
 	// Return the linear velocity of the system.
+	for(int i = 0; i < NUMBER_OF_BALLS; i++)
+	{
+		linearVelocity.x += Velocity[i].x*SphereMass;
+		linearVelocity.y += Velocity[i].y*SphereMass;
+		linearVelocity.z += Velocity[i].z*SphereMass;
+		totalMass += SphereMass;
+	}
+
+	linearVelocity.x /= totalMass;
+	linearVelocity.y /= totalMass;
+	linearVelocity.z /= totalMass;
 	
 	return(linearVelocity);
 }
