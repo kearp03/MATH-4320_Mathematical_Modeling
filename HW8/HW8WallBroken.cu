@@ -292,8 +292,10 @@ void drawPicture()
 float4 centerOfMass()
 {
 	float4 centerOfMass;
-	float totalMass = 0.0;
-
+	
+	// w is the total mass of the system
+	centerOfMass.w = 0.0;
+	// x, y, z are the three dimensional coordinates
 	centerOfMass.x = 0.0;
 	centerOfMass.y = 0.0;
 	centerOfMass.z = 0.0;
@@ -302,15 +304,15 @@ float4 centerOfMass()
 	// Return the center of mass of the system.
 	for(int i = 0; i < NUMBER_OF_BALLS; i++)
 	{
+		centerOfMass.w += SphereMass;
 		centerOfMass.x += Position[i].x*SphereMass;
 		centerOfMass.y += Position[i].y*SphereMass;
 		centerOfMass.z += Position[i].z*SphereMass;
-		totalMass += SphereMass;
 	}
 
-	centerOfMass.x /= totalMass;
-	centerOfMass.y /= totalMass;
-	centerOfMass.z /= totalMass;
+	centerOfMass.x /= centerOfMass.w;
+	centerOfMass.y /= centerOfMass.w;
+	centerOfMass.z /= centerOfMass.w;
 	
 	return(centerOfMass);
 }
@@ -318,8 +320,10 @@ float4 centerOfMass()
 float4 linearVelocity()
 {
 	float4 linearVelocity;
-	float totalMass;
 	
+	// w is the total mass of the system
+	linearVelocity.w = 0.0;
+	// x, y, z are the three dimensional coordinates
 	linearVelocity.x = 0.0;
 	linearVelocity.y = 0.0;
 	linearVelocity.z = 0.0;
@@ -328,15 +332,15 @@ float4 linearVelocity()
 	// Return the linear velocity of the system.
 	for(int i = 0; i < NUMBER_OF_BALLS; i++)
 	{
+		linearVelocity.w += SphereMass;
 		linearVelocity.x += Velocity[i].x*SphereMass;
 		linearVelocity.y += Velocity[i].y*SphereMass;
 		linearVelocity.z += Velocity[i].z*SphereMass;
-		totalMass += SphereMass;
 	}
 
-	linearVelocity.x /= totalMass;
-	linearVelocity.y /= totalMass;
-	linearVelocity.z /= totalMass;
+	linearVelocity.x /= linearVelocity.w;
+	linearVelocity.y /= linearVelocity.w;
+	linearVelocity.z /= linearVelocity.w;
 	
 	return(linearVelocity);
 }
@@ -383,13 +387,15 @@ void getForces()
 					printf("\n Spheres %d and %d got to close. Make your sphere repultion stronger\n", i, j);
 					exit(0);
 				}
-
+				// Calculate the relative velocity
 				dvx = Velocity[j].x - Velocity[i].x;
 				dvy = Velocity[j].y - Velocity[i].y;
 				dvz = Velocity[j].z - Velocity[i].z;
+
+				// Calculate the dot product between the relative position and velocity vectors
 				inOut = dx*dvx + dy*dvy + dz*dvz;
-				if(inOut < 0.0) magnitude = kSphere*(SphereDiameter - d); // If inOut is negative the sphere are converging.
-				else magnitude = kSphereReduction*kSphere*(SphereDiameter - d); // If inOut is positive the sphere are diverging.
+				magnitude = kSphere*(SphereDiameter - d); // Calculate the magnitude as if the spheres are converging
+				if(0.0 < inOut) magnitude *= kSphereReduction; // If inOut is positive the sphere are diverging, adjust the magnitude.
 				
 				// Doling out the force in the proper perfortions using unit vectors.
 				Force[i].x -= magnitude*normPosition.x;
@@ -404,6 +410,7 @@ void getForces()
 				// was at impact.
 				magnitude = GravityConstant*SphereMass*SphereMass/(SphereDiameter*SphereDiameter);
 			}
+			// No sphere collision
 			else
 			{
 				// This sets the gravity force between asteroids.
