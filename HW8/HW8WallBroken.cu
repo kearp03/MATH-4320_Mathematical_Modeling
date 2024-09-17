@@ -95,10 +95,12 @@ void KeyPressed(unsigned char key, int x, int y)
 		vel = linearVelocity();
 		for(int i = 0; i < NUMBER_OF_BALLS; i++)
 		{
+			// Move each ball according to the center of mass of the system
 			Position[i].x -= pos.x;
 			Position[i].y -= pos.y;
 			Position[i].z -= pos.z;
 
+			// Change each ball's velocity according to the linear velocity of the system
 			Velocity[i].x -= vel.x;
 			Velocity[i].y -= vel.y;
 			Velocity[i].z -= vel.z;
