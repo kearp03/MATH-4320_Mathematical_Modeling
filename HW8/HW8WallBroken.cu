@@ -350,6 +350,7 @@ void getForces()
 	float sphereRadius = SphereDiameter/2.0;
 	float d, dx, dy, dz;
 	float magnitude;
+	float4 normPosition;
 	
 	// Zeroing forces outside of the force loop just to be safe.
 	for(int i = 0; i < NUMBER_OF_BALLS; i++)
@@ -379,6 +380,10 @@ void getForces()
 					exit(0);
 				}
 				
+				normPosition.x = dx/d;
+				normPosition.y = dy/d;
+				normPosition.z = dz/d;
+
 				dvx = Velocity[j].x - Velocity[i].x;
 				dvy = Velocity[j].y - Velocity[i].y;
 				dvz = Velocity[j].z - Velocity[i].z;
@@ -387,36 +392,36 @@ void getForces()
 				else magnitude = kSphereReduction*kSphere*(SphereDiameter - d); // If inOut is positive the sphere are diverging.
 				
 				// Doling out the force in the proper perfortions using unit vectors.
-				Force[i].x -= magnitude*(dx/d);
-				Force[i].y -= magnitude*(dy/d);
-				Force[i].z -= magnitude*(dz/d);
+				Force[i].x -= magnitude*normPosition.x;
+				Force[i].y -= magnitude*normPosition.y;
+				Force[i].z -= magnitude*normPosition.z;
 				// A force on me causes the opposite force on you. 
-				Force[j].x += magnitude*(dx/d);
-				Force[j].y += magnitude*(dy/d);
-				Force[j].z += magnitude*(dz/d);
+				Force[j].x += magnitude*normPosition.x;
+				Force[j].y += magnitude*normPosition.y;
+				Force[j].z += magnitude*normPosition.z;
 				
 				// This adds the gravity between asteroids but the gravity is lock it at what it 
 				// was at impact.
 				magnitude = GravityConstant*SphereMass*SphereMass/(SphereDiameter*SphereDiameter);
-				Force[i].x += magnitude*(dx/d);
-				Force[i].y += magnitude*(dy/d);
-				Force[i].z += magnitude*(dz/d);
+				Force[i].x += magnitude*normPosition.x;
+				Force[i].y += magnitude*normPosition.y;
+				Force[i].z += magnitude*normPosition.z;
 				
-				Force[j].x -= magnitude*(dx/d);
-				Force[j].y -= magnitude*(dy/d);
-				Force[j].z -= magnitude*(dz/d);
+				Force[j].x -= magnitude*normPosition.x;
+				Force[j].y -= magnitude*normPosition.y;
+				Force[j].z -= magnitude*normPosition.z;
 			}
 			else
 			{
 				// This adds the gravity between asteroids.
 				magnitude = GravityConstant*SphereMass*SphereMass/(d*d);
-				Force[i].x += magnitude*(dx/d);
-				Force[i].y += magnitude*(dy/d);
-				Force[i].z += magnitude*(dz/d);
+				Force[i].x += magnitude*normPosition.x;
+				Force[i].y += magnitude*normPosition.y;
+				Force[i].z += magnitude*normPosition.z;
 				
-				Force[j].x -= magnitude*(dx/d);
-				Force[j].y -= magnitude*(dy/d);
-				Force[j].z -= magnitude*(dz/d);
+				Force[j].x -= magnitude*normPosition.x;
+				Force[j].y -= magnitude*normPosition.y;
+				Force[j].z -= magnitude*normPosition.z;
 			}
 		}
 	}
