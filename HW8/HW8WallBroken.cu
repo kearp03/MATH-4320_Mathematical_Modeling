@@ -370,6 +370,10 @@ void getForces()
 			dz = Position[j].z - Position[i].z;
 			d = sqrt(dx*dx + dy*dy + dz*dz);
 			
+			normPosition.x = dx/d;
+			normPosition.y = dy/d;
+			normPosition.z = dz/d;
+
 			// Nonelastic sphere collisions 
 			if(d < SphereDiameter)
 			{
@@ -379,10 +383,6 @@ void getForces()
 					printf("\n Spheres %d and %d got to close. Make your sphere repultion stronger\n", i, j);
 					exit(0);
 				}
-				
-				normPosition.x = dx/d;
-				normPosition.y = dy/d;
-				normPosition.z = dz/d;
 
 				dvx = Velocity[j].x - Velocity[i].x;
 				dvy = Velocity[j].y - Velocity[i].y;
