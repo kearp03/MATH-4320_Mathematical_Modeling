@@ -140,12 +140,14 @@ void KeyPressed(unsigned char key, int x, int y)
 	}
 	
 	float dx = 0.05f;
+	// Move left
 	if(key == 'x')
 	{
 		glTranslatef(-dx, 0.0, 0.0);
 		drawPicture();
 		terminalPrint();
 	}
+	// Move right
 	if(key == 'X')
 	{
 		glTranslatef(dx, 0.0, 0.0);
@@ -153,12 +155,14 @@ void KeyPressed(unsigned char key, int x, int y)
 	}
 	
 	float dy = 0.05f;
+	// Move down
 	if(key == 'y')
 	{
 		glTranslatef(0.0, -dy, 0.0);
 		drawPicture();
 		terminalPrint();
 	}
+	// Move up
 	if(key == 'Y')
 	{
 		glTranslatef(0.0, dy, 0.0);
@@ -166,12 +170,14 @@ void KeyPressed(unsigned char key, int x, int y)
 	}
 	
 	float dz = 0.05f;
+	// Move out
 	if(key == 'z')
 	{
 		glTranslatef(0.0, 0.0, -dz);
 		drawPicture();
 		terminalPrint();
 	}
+	// Move in
 	if(key == 'Z')
 	{
 		glTranslatef(0.0, 0.0, dz);
