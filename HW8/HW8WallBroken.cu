@@ -400,29 +400,22 @@ void getForces()
 				Force[j].y += magnitude*normPosition.y;
 				Force[j].z += magnitude*normPosition.z;
 				
-				// This adds the gravity between asteroids but the gravity is lock it at what it 
+				// This sets the gravity force between asteroids but the gravity is locked at what it 
 				// was at impact.
 				magnitude = GravityConstant*SphereMass*SphereMass/(SphereDiameter*SphereDiameter);
-				Force[i].x += magnitude*normPosition.x;
-				Force[i].y += magnitude*normPosition.y;
-				Force[i].z += magnitude*normPosition.z;
-				
-				Force[j].x -= magnitude*normPosition.x;
-				Force[j].y -= magnitude*normPosition.y;
-				Force[j].z -= magnitude*normPosition.z;
 			}
 			else
 			{
-				// This adds the gravity between asteroids.
+				// This sets the gravity force between asteroids.
 				magnitude = GravityConstant*SphereMass*SphereMass/(d*d);
-				Force[i].x += magnitude*normPosition.x;
-				Force[i].y += magnitude*normPosition.y;
-				Force[i].z += magnitude*normPosition.z;
-				
-				Force[j].x -= magnitude*normPosition.x;
-				Force[j].y -= magnitude*normPosition.y;
-				Force[j].z -= magnitude*normPosition.z;
 			}
+			Force[i].x += magnitude*normPosition.x;
+			Force[i].y += magnitude*normPosition.y;
+			Force[i].z += magnitude*normPosition.z;
+			
+			Force[j].x -= magnitude*normPosition.x;
+			Force[j].y -= magnitude*normPosition.y;
+			Force[j].z -= magnitude*normPosition.z;
 		}
 	}
 }
