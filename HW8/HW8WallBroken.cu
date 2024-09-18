@@ -305,7 +305,28 @@ void drawPicture()
 	
 	// ???????????????????????????????????????????????
 	// Draw a cool 10X10 wall centered at (25,0,0) perpendicular to the x axis.
+	float4 center, dimensions, halfDim;
+	center.x = 25.0;
+	center.y = 0.0;
+	center.z = 0.0;
 	
+	dimensions.x = 0.0;
+	dimensions.y = 10.0;
+	dimensions.z = 10.0;
+
+	halfDim.x = dimensions.x/2.0;
+	halfDim.y = dimensions.y/2.0;
+	halfDim.z = dimensions.z/2.0;
+	
+	glLineWidth(3.0);
+	glColor3d(0.0, 1.0, 0.0);
+	glBegin(GL_QUADS);
+		glVertex3f(center.x, center.y-halfDim.y, center.z-halfDim.z);
+		glVertex3f(center.x, center.y+halfDim.y, center.z-halfDim.z);
+		glVertex3f(center.x, center.y+halfDim.y, center.z+halfDim.z);
+		glVertex3f(center.x, center.y-halfDim.y, center.z+halfDim.z);
+	glEnd();
+
 	glutSwapBuffers();
 }
 
