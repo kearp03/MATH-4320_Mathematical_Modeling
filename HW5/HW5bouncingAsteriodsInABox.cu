@@ -1,4 +1,4 @@
-//nvcc HW5bouncingAsteriodsInABoxBroken.cu -o bounce -lglut -lm -lGLU -lGL																													
+//nvcc HW5bouncingAsteriodsInABox.cu -o bounce -lglut -lm -lGLU -lGL																													
 //To stop hit "control c" in the window you launched it from.
 #include <iostream>
 #include <fstream>

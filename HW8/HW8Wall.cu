@@ -1,4 +1,4 @@
-//nvcc AsteriodsLocalDampingBroken.cu -o bounce -lglut -lm -lGLU -lGL																													
+//nvcc HW8Wall.cu -o bounce -lglut -lm -lGLU -lGL
 //To stop hit "control c" in the window you launched it from.
 #include <iostream>
 #include <fstream>
@@ -59,6 +59,8 @@ void reshape(int, int);
 void KeyPressed(unsigned char, int, int);
 void setInitailConditions();
 void drawPicture();
+float4 centerOfMass();
+float4 linearVelocity();
 void getForces();
 void updatePositions();
 void nBody();
@@ -82,6 +84,44 @@ void reshape(int w, int h)
 
 void KeyPressed(unsigned char key, int x, int y)
 {
+	if(key == 'k')
+	{
+		float4 pos, vel;
+		Pause = 1;
+		terminalPrint();
+		// ??????????????????????????????????????????
+		// Zero out center of mass and linear velocity of the system.
+		pos = centerOfMass();
+		vel = linearVelocity();
+		for(int i = 0; i < NUMBER_OF_BALLS; i++)
+		{
+			// Move each ball according to the center of mass of the system
+			Position[i].x -= pos.x;
+			Position[i].y -= pos.y;
+			Position[i].z -= pos.z;
+
+			// Change each ball's velocity according to the linear velocity of the system
+			Velocity[i].x -= vel.x;
+			Velocity[i].y -= vel.y;
+			Velocity[i].z -= vel.z;
+		}
+		drawPicture();
+		printf("\n The simulation has been zeroed out.\n");
+	}
+	
+	if(key == '1')
+	{
+		float4 pos, vel;
+		Pause = 1;
+		terminalPrint();
+		// ??????????????????????????????????????????
+		//Print out center of mass and linear velocity of the system.
+		pos = centerOfMass();
+		vel = linearVelocity();
+		printf("\nCenter of mass: (%f, %f, %f)", pos.x, pos.y, pos.z);
+		printf("\nLinear velocity: (%f, %f, %f)\n", vel.x, vel.y, vel.z);
+	}
+	
 	// Turns tracers on and off
 	if(key == 't')
 	{
@@ -99,48 +139,49 @@ void KeyPressed(unsigned char key, int x, int y)
 		terminalPrint();
 	}
 	
-	// ?????????????????????????????????????????????????????????????
-	// Add left, right, up, and down functionality to your simulation.
 	float dx = 0.05f;
-	float dy = 0.05f;
-	float dz = 0.05f;
+	// Move left
 	if(key == 'x')
 	{
 		glTranslatef(-dx, 0.0, 0.0);
 		drawPicture();
 		terminalPrint();
 	}
+	// Move right
 	if(key == 'X')
 	{
 		glTranslatef(dx, 0.0, 0.0);
 		drawPicture();
-		terminalPrint();
 	}
-
+	
+	float dy = 0.05f;
+	// Move down
 	if(key == 'y')
-	{
-		glTranslatef(0.0, dy, 0.0);
-		drawPicture();
-		terminalPrint();
-	}
-	if(key == 'Y')
 	{
 		glTranslatef(0.0, -dy, 0.0);
 		drawPicture();
 		terminalPrint();
 	}
-
+	// Move up
+	if(key == 'Y')
+	{
+		glTranslatef(0.0, dy, 0.0);
+		drawPicture();
+	}
+	
+	float dz = 0.05f;
+	// Move out
 	if(key == 'z')
 	{
 		glTranslatef(0.0, 0.0, -dz);
 		drawPicture();
 		terminalPrint();
 	}
+	// Move in
 	if(key == 'Z')
 	{
 		glTranslatef(0.0, 0.0, dz);
 		drawPicture();
-		terminalPrint();
 	}
 	
 	if(key == 'q')
@@ -154,10 +195,9 @@ void KeyPressed(unsigned char key, int x, int y)
 void setInitailConditions()
 {
 	time_t t;
-	float randomNumber;
-	// float sphereRadius;
 	float seperation;
 	int test;
+	float maxSphereSize, angle1, angle2, radius;
 	
 	// Seeding the random number generater.
 	srand((unsigned) time(&t));
@@ -185,39 +225,27 @@ void setInitailConditions()
 	// All spheres are the same diameter and mass of Ceres so these should be 1..
 	SphereDiameter = 1.0;
 	SphereMass = 1.0;
-	// sphereRadius = SphereDiameter/2.0;
+	
+	// Making the size of the intial sphere I out the shpers in 50 times bigger than a sphere.
+	maxSphereSize = 10.0*SphereDiameter;
 	
 	// You get to pick this but it is nice to print it out in common units to get a feel for what it is.
 	MaxVelocity = 1.0;
 	printf("\n Max velocity = %f kilometers/hour or %f miles/hour", MaxVelocity*LengthUnitConverter/TimeUnitConverter, (MaxVelocity*LengthUnitConverter/TimeUnitConverter)*0.621371);
 	
-	// ??????????????????????????????????????????????????
-	// Take the asteroids out of the box so you will not need these. Also remove them from the set of global and local variables 
-	
-	// ??????????????????????????????????????????????????
-	// You will be initially putting the asteroids inside a big sphere 
-	// so you will need a local variable call it maxSphereSize and two other local variables
-	// call them angle1 and angle2.
-	float maxSphereSize = 20.0; //max radius of the sphere in which the balls are placed
-	float angle1, angle2;
-	
-	int tries, maxTries = 100'000;
 	for(int i = 0; i < NUMBER_OF_BALLS; i++)
 	{
 		// Settting the balls randomly in a large sphere and not letting them be right on top of each other.
 		test = 0;
-		tries = 0;
 		while(test == 0)
 		{
-			// ?????????????????????????????????????????????
-			// Change this from a box to a sphere.
 			// Get random position.
-			randomNumber = ((float)rand()/(float)RAND_MAX)*maxSphereSize;
-			angle1 = ((float)rand()/(float)RAND_MAX)*2*PI;
+			angle1 = ((float)rand()/(float)RAND_MAX)*2.0*PI;
 			angle2 = ((float)rand()/(float)RAND_MAX)*PI;
-			Position[i].x = randomNumber*cos(angle2)*cos(angle1);
-			Position[i].y = randomNumber*sin(angle2);
-			Position[i].z = randomNumber*cos(angle2)*sin(angle1);
+			radius = ((float)rand()/(float)RAND_MAX)*maxSphereSize;
+			Position[i].x = radius*cos(angle1)*sin(angle2);
+			Position[i].y = radius*sin(angle1)*sin(angle2);
+			Position[i].z = radius*cos(angle2);
 			
 			// Making sure the balls centers are at least a diameter apart.
 			// If they are not throw these positions away and try again.
@@ -231,21 +259,12 @@ void setInitailConditions()
 					break;
 				}
 			}
-			tries++;
-			if (tries > maxTries)
-			{
-				printf("\n\nMaximum number of tries for a sphere has been reached. Exiting program\n");
-				exit(0);
-			}
 		}
 		
 		// Setting random velocities between -MaxVelocity and MaxVelocity.
-		randomNumber = (((float)rand()/(float)RAND_MAX)*2.0 - 1.0)*MaxVelocity;
-		Velocity[i].x = randomNumber;
-		randomNumber = (((float)rand()/(float)RAND_MAX)*2.0 - 1.0)*MaxVelocity;
-		Velocity[i].y = randomNumber;
-		randomNumber = (((float)rand()/(float)RAND_MAX)*2.0 - 1.0)*MaxVelocity;
-		Velocity[i].z = randomNumber;
+		Velocity[i].x = (((float)rand()/(float)RAND_MAX)*2.0 - 1.0)*MaxVelocity;
+		Velocity[i].y = (((float)rand()/(float)RAND_MAX)*2.0 - 1.0)*MaxVelocity;
+		Velocity[i].z = (((float)rand()/(float)RAND_MAX)*2.0 - 1.0)*MaxVelocity;
 		
 		// Color of each asteroid. 
 		Color[i].x = 0.35;
@@ -262,7 +281,7 @@ void setInitailConditions()
 	TotalRunTime = 10.0*24.0/TimeUnitConverter;
 	RunTime = 0.0;
 	Dt = 0.001;
-	// How many time steps between terminal prints
+	// How many time steps between termenal prints
 	PrintRate = 10;
 }
 
@@ -274,8 +293,6 @@ void drawPicture()
 		glClear(GL_DEPTH_BUFFER_BIT);
 	}
 	
-	// float halfSide = BoxSideLength/2.0;
-	
 	// Drawing balls.
 	for(int i = 0; i < NUMBER_OF_BALLS; i++)
 	{
@@ -286,27 +303,99 @@ void drawPicture()
 		glPopMatrix();
 	}
 	
-	// ????????????????????????????????????????????????????????
-	// If the asteroids are not going to live in a box why draw it.
+	// ???????????????????????????????????????????????
+	// Draw a cool 10X10 wall centered at (25,0,0) perpendicular to the x axis.
+	float4 center, dimensions, halfDim;
+	center.x = 25.0;
+	center.y = 0.0;
+	center.z = 0.0;
 	
+	dimensions.x = 0.0;
+	dimensions.y = 10.0;
+	dimensions.z = 10.0;
+
+	halfDim.x = dimensions.x/2.0;
+	halfDim.y = dimensions.y/2.0;
+	halfDim.z = dimensions.z/2.0;
+	
+	glLineWidth(3.0);
+	glColor3d(0.0, 1.0, 0.0);
+	glBegin(GL_QUADS);
+		glVertex3f(center.x, center.y-halfDim.y, center.z-halfDim.z);
+		glVertex3f(center.x, center.y+halfDim.y, center.z-halfDim.z);
+		glVertex3f(center.x, center.y+halfDim.y, center.z+halfDim.z);
+		glVertex3f(center.x, center.y-halfDim.y, center.z+halfDim.z);
+	glEnd();
+
 	glutSwapBuffers();
+}
+
+float4 centerOfMass()
+{
+	float4 centerOfMass;
+	
+	// w is the total mass of the system
+	centerOfMass.w = 0.0;
+	// x, y, z are the three dimensional coordinates
+	centerOfMass.x = 0.0;
+	centerOfMass.y = 0.0;
+	centerOfMass.z = 0.0;
+	
+	// ????????????????????????????????????????????????????????
+	// Return the center of mass of the system.
+	for(int i = 0; i < NUMBER_OF_BALLS; i++)
+	{
+		centerOfMass.w += SphereMass;
+		centerOfMass.x += Position[i].x*SphereMass;
+		centerOfMass.y += Position[i].y*SphereMass;
+		centerOfMass.z += Position[i].z*SphereMass;
+	}
+
+	centerOfMass.x /= centerOfMass.w;
+	centerOfMass.y /= centerOfMass.w;
+	centerOfMass.z /= centerOfMass.w;
+	
+	return(centerOfMass);
+}
+
+float4 linearVelocity()
+{
+	float4 linearVelocity;
+	
+	// w is the total mass of the system
+	linearVelocity.w = 0.0;
+	// x, y, z are the three dimensional coordinates
+	linearVelocity.x = 0.0;
+	linearVelocity.y = 0.0;
+	linearVelocity.z = 0.0;
+	
+	// ????????????????????????????????????????????????????????
+	// Return the linear velocity of the system.
+	for(int i = 0; i < NUMBER_OF_BALLS; i++)
+	{
+		linearVelocity.w += SphereMass;
+		linearVelocity.x += Velocity[i].x*SphereMass;
+		linearVelocity.y += Velocity[i].y*SphereMass;
+		linearVelocity.z += Velocity[i].z*SphereMass;
+	}
+
+	linearVelocity.x /= linearVelocity.w;
+	linearVelocity.y /= linearVelocity.w;
+	linearVelocity.z /= linearVelocity.w;
+	
+	return(linearVelocity);
 }
 
 void getForces()
 {
-	// ????????????????????????????????????????????
-	// We aren't going to have walls in our new world so you will not need these.
-	
-	// ????????????????????????????????????????????
-	// These are a new variable you will use when making the asteroids collide inelastically. 
 	float inOut;
-	float kSphereReduction;
+	float kSphereReduction = 0.5;
 	float dvx, dvy, dvz;
-	
 	float kSphere;
 	float sphereRadius = SphereDiameter/2.0;
 	float d, dx, dy, dz;
 	float magnitude;
+	float4 normPosition;
 	
 	// Zeroing forces outside of the force loop just to be safe.
 	for(int i = 0; i < NUMBER_OF_BALLS; i++)
@@ -317,7 +406,6 @@ void getForces()
 	}
 	
 	kSphere = 1000.0;
-	kSphereReduction = 0.25;
 	for(int i = 0; i < NUMBER_OF_BALLS; i++)
 	{	
 		for(int j = 0; j < i; j++)
@@ -327,67 +415,55 @@ void getForces()
 			dz = Position[j].z - Position[i].z;
 			d = sqrt(dx*dx + dy*dy + dz*dz);
 			
-			// ?????????????????????????????????????????????????????
-			// This causes the asteroids to bounce off of each other elastically.
-			// Make this a nonelastic bounce.
-			// Make two local variable inOut and kSphereReduction and fix this problem.
-			// You will also need local variables dvx, dvy, dvz.
-			// Also check and see if the seperation is less than the radius.
-			// If it is print out a note to make your repultion stronger and terminate the program.
+			normPosition.x = dx/d;
+			normPosition.y = dy/d;
+			normPosition.z = dz/d;
+
+			// Nonelastic sphere collisions 
 			if(d < SphereDiameter)
 			{
-				// ?????????????????
-				// I did the radius check for you.
+				// If the seperation gets smaller than a radius something is wrong.
 				if(d < sphereRadius)
 				{
 					printf("\n Spheres %d and %d got to close. Make your sphere repultion stronger\n", i, j);
 					exit(0);
 				}
-				// Calculate realtive velocity
+				// Calculate the relative velocity
 				dvx = Velocity[j].x - Velocity[i].x;
 				dvy = Velocity[j].y - Velocity[i].y;
 				dvz = Velocity[j].z - Velocity[i].z;
 
-				// Compute dot product of relative velocity and relative position
-				inOut = dvx*dx + dvy*dy + dvz*dz;
-
-				// Calculate magnitude of force from bouncing
-				magnitude = kSphere*(SphereDiameter - d);
-				// If balls are separating, reduce the force
-				if(inOut > 0.0) magnitude *= kSphereReduction;
+				// Calculate the dot product between the relative position and velocity vectors
+				inOut = dx*dvx + dy*dvy + dz*dvz;
+				magnitude = kSphere*(SphereDiameter - d); // Calculate the magnitude as if the spheres are converging
+				if(0.0 < inOut) magnitude *= kSphereReduction; // If inOut is positive the sphere are diverging, adjust the magnitude.
 				
 				// Doling out the force in the proper perfortions using unit vectors.
-				Force[i].x -= magnitude*(dx/d);
-				Force[i].y -= magnitude*(dy/d);
-				Force[i].z -= magnitude*(dz/d);
+				Force[i].x -= magnitude*normPosition.x;
+				Force[i].y -= magnitude*normPosition.y;
+				Force[i].z -= magnitude*normPosition.z;
 				// A force on me causes the opposite force on you. 
-				Force[j].x += magnitude*(dx/d);
-				Force[j].y += magnitude*(dy/d);
-				Force[j].z += magnitude*(dz/d);
+				Force[j].x += magnitude*normPosition.x;
+				Force[j].y += magnitude*normPosition.y;
+				Force[j].z += magnitude*normPosition.z;
+				
+				// This sets the gravity force between asteroids but the gravity is locked at what it 
+				// was at impact.
+				magnitude = GravityConstant*SphereMass*SphereMass/(SphereDiameter*SphereDiameter);
 			}
+			// No sphere collision
+			else
+			{
+				// This sets the gravity force between asteroids.
+				magnitude = GravityConstant*SphereMass*SphereMass/(d*d);
+			}
+			Force[i].x += magnitude*normPosition.x;
+			Force[i].y += magnitude*normPosition.y;
+			Force[i].z += magnitude*normPosition.z;
 			
-			// This adds the gravity between asteroids.
-			magnitude = GravityConstant*SphereMass*SphereMass/(d*d);
-			Force[i].x += magnitude*(dx/d);
-			Force[i].y += magnitude*(dy/d);
-			Force[i].z += magnitude*(dz/d);
-			
-			Force[j].x -= magnitude*(dx/d);
-			Force[j].y -= magnitude*(dy/d);
-			Force[j].z -= magnitude*(dz/d);
-			
-			// ???????????? Nothing to do. Just a new comic relief.
-			// A lady walks into a bar, throws her credit card down, and says, 
-			// 'Give me a beer, then half a beer, then a quarter of a beer, then an eighth of a beer, 
-			// and just keep them coming.' The bartender pours the lady two beers and says, 
-			// 'In this business, you have to know your customer's limits.'
-			//
-			// Then Chuck Norris's wife walks in, throws her credit card down, and says, 
-			// 'Give me a beer, then half a beer, then a third of a beer, then a quarter of a beer, 
-			// then a fifth of a beer, and just keep them coming. And when you're done with that, 
-			// give me a whiskey chaser.'
-			//
-			// If you're not laughing, ask Dr. Crawford to explain it in his analysis class. Or ask Kyle.
+			Force[j].x -= magnitude*normPosition.x;
+			Force[j].y -= magnitude*normPosition.y;
+			Force[j].z -= magnitude*normPosition.z;
 		}
 	}
 }
@@ -414,6 +490,9 @@ void updatePositions()
 		Position[i].y += Velocity[i].y*Dt;
 		Position[i].z += Velocity[i].z*Dt;
 	}
+	// ???????????????????????????????????????????????????????????
+	// Quantum Chuck Norris is always in a superposition, and he doesn't care if you observe him or not. 
+	// And don't even think about trying to entangle him, because he's spooky both up close and at a distance.
 }
 
 void nBody()
@@ -471,12 +550,14 @@ void terminalPrint()
 	
 	system("clear");
 	
-	// ????????????????????????????????????????
-	// let people know how to move left, right, up, and down.
 	printf("\n");
-	printf("\n X/x: Move left move right");
-	printf("\n Y/y: Move up move down");
+	printf("\n X/x: Move Right move left");
+	printf("\n Y/y: Move Up move down");
 	printf("\n Z/z: Move in move out");
+	
+	printf("\n");
+	printf("\n k: Will zero out the center of mass and linear velocity of the system.");
+	printf("\n 1: Will print the center of mass and the linear velocity of the system.");
 	
 	printf("\033[0m");
 	printf("\n t: Trace on/off toggle --> ");
@@ -505,7 +586,7 @@ void terminalPrint()
 	printf(" q: Terminates the simulation");
 	
 	// Print the time out in hours.
-	printf("\n\n Time = %f \033[0;34mhours", RunTime*TimeUnitConverter); //inside units to outside
+	printf("\n\n Time = %f \033[0;34mhours", RunTime*TimeUnitConverter);
 	printf("\033[0m");
 	printf("\n");
 }
@@ -525,7 +606,7 @@ int main(int argc, char** argv)
 	//Where your eye is located
 	EyeX = 0.0;
 	EyeY = 0.0;
-	EyeZ = 15.0*SphereDiameter;
+	EyeZ = 25.0*SphereDiameter;
 
 	//Where you are looking
 	CenterX = 0.0;
