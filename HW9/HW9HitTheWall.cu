@@ -319,48 +319,56 @@ void drawPicture()
 
 float4 centerOfMass()
 {
-	float totalMass;
 	float4 centerOfMass;
 	
+	// w is the total mass of the system
+	centerOfMass.w = 0.0;
+	// x, y, z are the three dimensional coordinates
 	centerOfMass.x = 0.0;
 	centerOfMass.y = 0.0;
 	centerOfMass.z = 0.0;
-	totalMass = 0.0;
 	
+	// ????????????????????????????????????????????????????????
+	// Return the center of mass of the system.
 	for(int i = 0; i < NUMBER_OF_BALLS; i++)
 	{
-    		centerOfMass.x += Position[i].x*SphereMass;
+		centerOfMass.w += SphereMass;
+		centerOfMass.x += Position[i].x*SphereMass;
 		centerOfMass.y += Position[i].y*SphereMass;
 		centerOfMass.z += Position[i].z*SphereMass;
-		totalMass += SphereMass;
 	}
-	centerOfMass.x /= totalMass;
-	centerOfMass.y /= totalMass;
-	centerOfMass.z /= totalMass;
+
+	centerOfMass.x /= centerOfMass.w;
+	centerOfMass.y /= centerOfMass.w;
+	centerOfMass.z /= centerOfMass.w;
 	
 	return(centerOfMass);
 }
 
 float4 linearVelocity()
 {
-	float totalMass;
 	float4 linearVelocity;
 	
+	// w is the total mass of the system
+	linearVelocity.w = 0.0;
+	// x, y, z are the three dimensional coordinates
 	linearVelocity.x = 0.0;
 	linearVelocity.y = 0.0;
 	linearVelocity.z = 0.0;
-	totalMass = 0.0;
 	
+	// ????????????????????????????????????????????????????????
+	// Return the linear velocity of the system.
 	for(int i = 0; i < NUMBER_OF_BALLS; i++)
 	{
-    		linearVelocity.x += Velocity[i].x*SphereMass;
+		linearVelocity.w += SphereMass;
+		linearVelocity.x += Velocity[i].x*SphereMass;
 		linearVelocity.y += Velocity[i].y*SphereMass;
 		linearVelocity.z += Velocity[i].z*SphereMass;
-		totalMass += SphereMass;
 	}
-	linearVelocity.x /= totalMass;
-	linearVelocity.y /= totalMass;
-	linearVelocity.z /= totalMass;
+
+	linearVelocity.x /= linearVelocity.w;
+	linearVelocity.y /= linearVelocity.w;
+	linearVelocity.z /= linearVelocity.w;
 	
 	return(linearVelocity);
 }
