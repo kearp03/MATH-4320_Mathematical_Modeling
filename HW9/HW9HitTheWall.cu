@@ -327,9 +327,7 @@ float4 centerOfMass()
 	centerOfMass.x = 0.0;
 	centerOfMass.y = 0.0;
 	centerOfMass.z = 0.0;
-	
-	// ????????????????????????????????????????????????????????
-	// Return the center of mass of the system.
+
 	for(int i = 0; i < NUMBER_OF_BALLS; i++)
 	{
 		centerOfMass.w += SphereMass;
@@ -355,9 +353,7 @@ float4 linearVelocity()
 	linearVelocity.x = 0.0;
 	linearVelocity.y = 0.0;
 	linearVelocity.z = 0.0;
-	
-	// ????????????????????????????????????????????????????????
-	// Return the linear velocity of the system.
+
 	for(int i = 0; i < NUMBER_OF_BALLS; i++)
 	{
 		linearVelocity.w += SphereMass;
@@ -382,6 +378,7 @@ void getForces()
 	float sphereRadius = SphereDiameter/2.0;
 	float d, dx, dy, dz;
 	float magnitude;
+	float4 normPosition;
 	
 	// Zeroing forces outside of the force loop just to be safe.
 	for(int i = 0; i < NUMBER_OF_BALLS; i++)
@@ -408,6 +405,10 @@ void getForces()
 			dz = Position[j].z - Position[i].z;
 			d = sqrt(dx*dx + dy*dy + dz*dz);
 			
+			normPosition.x = dx/d;
+			normPosition.y = dy/d;
+			normPosition.z = dz/d;
+
 			// Nonelastic sphere collisions 
 			if(d < SphereDiameter)
 			{
@@ -422,41 +423,34 @@ void getForces()
 				dvy = Velocity[j].y - Velocity[i].y;
 				dvz = Velocity[j].z - Velocity[i].z;
 				inOut = dx*dvx + dy*dvy + dz*dvz;
-				if(inOut < 0.0) magnitude = kSphere*(SphereDiameter - d); // If inOut is negative the sphere are converging.
-				else magnitude = kSphereReduction*kSphere*(SphereDiameter - d); // If inOut is positive the sphere are diverging.
+				magnitude = kSphere*(SphereDiameter - d); // Calculate the magnitude as if the spheres are converging
+				if(0.0 < inOut) magnitude *= kSphereReduction; // If inOut is positive the sphere are diverging, adjust the magnitude.
 				
 				// Doling out the force in the proper perfortions using unit vectors.
-				Force[i].x -= magnitude*(dx/d);
-				Force[i].y -= magnitude*(dy/d);
-				Force[i].z -= magnitude*(dz/d);
+				Force[i].x -= magnitude*normPosition.x;
+				Force[i].y -= magnitude*normPosition.y;
+				Force[i].z -= magnitude*normPosition.z;
 				// A force on me causes the opposite force on you. 
-				Force[j].x += magnitude*(dx/d);
-				Force[j].y += magnitude*(dy/d);
-				Force[j].z += magnitude*(dz/d);
+				Force[j].x += magnitude*normPosition.x;
+				Force[j].y += magnitude*normPosition.y;
+				Force[j].z += magnitude*normPosition.z;
 				
 				// This adds the gravity between asteroids but the gravity is lock in at what it 
 				// was at impact.
 				magnitude = GravityConstant*SphereMass*SphereMass/(SphereDiameter*SphereDiameter);
-				Force[i].x += magnitude*(dx/d);
-				Force[i].y += magnitude*(dy/d);
-				Force[i].z += magnitude*(dz/d);
-				
-				Force[j].x -= magnitude*(dx/d);
-				Force[j].y -= magnitude*(dy/d);
-				Force[j].z -= magnitude*(dz/d);
 			}
 			else
 			{
 				// This adds the gravity between asteroids when they are not touching.
 				magnitude = GravityConstant*SphereMass*SphereMass/(d*d);
-				Force[i].x += magnitude*(dx/d);
-				Force[i].y += magnitude*(dy/d);
-				Force[i].z += magnitude*(dz/d);
-				
-				Force[j].x -= magnitude*(dx/d);
-				Force[j].y -= magnitude*(dy/d);
-				Force[j].z -= magnitude*(dz/d);
 			}
+			Force[i].x += magnitude*normPosition.x;
+			Force[i].y += magnitude*normPosition.y;
+			Force[i].z += magnitude*normPosition.z;
+			
+			Force[j].x -= magnitude*normPosition.x;
+			Force[j].y -= magnitude*normPosition.y;
+			Force[j].z -= magnitude*normPosition.z;
 		}
 	}
 }
