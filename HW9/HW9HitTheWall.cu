@@ -86,7 +86,19 @@ void KeyPressed(unsigned char key, int x, int y)
 {
 	// ??????????????????????????????????????????????
 	// Make a key that will propel the asteriod into your wall
-	
+	if(key == 'f')
+	{
+		float4 pos = centerOfMass();
+		float speed;
+		Pause = 1;
+		terminalPrint();
+		speed = 100.0;
+		printf("\nPreparing to fire asterioids at wall at %f km/hr\n", speed*LengthUnitConverter/TimeUnitConverter);
+		for(int i = 0; i < NUMBER_OF_BALLS; i++)
+		{
+			Velocity[i].x += speed;
+		}
+	}
 	
 	if(key == 'k')
 	{
@@ -299,13 +311,12 @@ void drawPicture()
 	// Drawing the wall.
 	glLineWidth(3.0);
 	//Drawing front of box
-	glColor3d(0.0, 1.0, 0.0);
-	glBegin(GL_LINE_LOOP);
+	glColor3d(0.1, 1.0, 0.5);
+	glBegin(GL_QUADS);
 		glVertex3f(25.0, -5.0, 5.0);
 		glVertex3f(25.0, -5.0, -5.0);
 		glVertex3f(25.0, 5.0, -5.0);
 		glVertex3f(25.0, 5.0, 5.0);
-		glVertex3f(25.0, -5.0, 5.0);
 	glEnd();
 	
 	glColor3d(1.0, 0.0, 0.0);
@@ -375,6 +386,8 @@ void getForces()
 	float kSphereReduction;
 	float dvx, dvy, dvz;
 	float kSphere;
+	float kWall;
+	float kWallReduction;
 	float sphereRadius = SphereDiameter/2.0;
 	float d, dx, dy, dz;
 	float magnitude;
@@ -388,14 +401,25 @@ void getForces()
 		Force[i].z = 0.0;
 	}
 	
-	kSphere = 1000.0;
+	kSphere = 100000.0;
 	kSphereReduction = 0.5;
+	kWall = 1000000.0;
+	kWallReduction = 0.75;
 	for(int i = 0; i < NUMBER_OF_BALLS; i++)
 	{	
 		// ?????????????????????????????????????????????????????
 		// Make the asteriods inilastically bounce off the wall.
-		
-		
+		// Is the sphere close to the wall in the x direction
+		if(25 < (Position[i].x+sphereRadius) && (Position[i].x+sphereRadius) < 27)
+		{
+			// Is the sphere between -5 and 5 in the y and z directions
+			if(fabs(Position[i].y)+sphereRadius < 5 && fabs(Position[i].z)+sphereRadius < 5)
+			{
+				magnitude = kWall*(Position[i].x + sphereRadius - 25);
+				if(Velocity[i].x < 0.0) magnitude *= kWallReduction;
+				Force[i].x -= magnitude;
+			}
+		}
 		
 		// This adds forces between asteriods.
 		for(int j = 0; j < i; j++)
@@ -544,6 +568,7 @@ void terminalPrint()
 	printf("\n 1: Will print the center of mass and the linear velocity of the system.");
 	// ????????????????????????????????????????????
 	// Tell people about your new key
+	printf("\n f: Fire system at the wall.");
 	
 	printf("\033[0m");
 	printf("\n t: Trace on/off toggle --> ");
