@@ -86,16 +86,14 @@ void KeyPressed(unsigned char key, int x, int y)
 {
 	// ??????????????????????????????????????????????
 	// Make a key that will propel the asteriod into your wall
-	static float total_speed = 0.0;
 	if(key == 'f')
 	{
-		float4 pos = centerOfMass();
+		KeyPressed('k', 0, 0);
 		float speed;
 		Pause = 1;
 		terminalPrint();
-		speed = 10.0;
-		total_speed += speed;
-		printf("\nPreparing to fire asterioids at wall at %f km/hr\n", total_speed*LengthUnitConverter/TimeUnitConverter);
+		speed = 50.0;
+		printf("\nPreparing to fire asterioids at wall at %f km/hr\n", speed*LengthUnitConverter/TimeUnitConverter);
 		for(int i = 0; i < NUMBER_OF_BALLS; i++)
 		{
 			Velocity[i].x += speed;
@@ -146,11 +144,7 @@ void KeyPressed(unsigned char key, int x, int y)
 	
 	if(key == 'p')
 	{
-		if(Pause == 1)
-		{
-			Pause = 0;
-			total_speed = 0.0;
-		}
+		if(Pause == 1) Pause = 0;
 		else Pause = 1;
 		drawPicture();
 		terminalPrint();
