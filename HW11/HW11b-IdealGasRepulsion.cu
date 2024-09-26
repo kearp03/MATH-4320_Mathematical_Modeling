@@ -1,4 +1,4 @@
-//nvcc HW11b-IdealGasRepulsionBroken.cu -o bounceg -lglut -lm -lGLU -lGL
+//nvcc HW11b-IdealGasRepulsion.cu -o bounceg -lglut -lm -lGLU -lGL
 //To stop hit "control c" in the window you launched it from.
 #include <iostream>
 #include <fstream>
