@@ -1,4 +1,4 @@
-//nvcc QuadraticRepulsionBroken.cu -o bounce -lglut -lm -lGLU -lGL																													
+//nvcc HW11a-QuadraticRepulsionBroken.cu -o bounceq -lglut -lm -lGLU -lGL
 //To stop hit "control c" in the window you launched it from.
 #include <iostream>
 #include <fstream>
@@ -34,7 +34,7 @@ int PrintCount;
 float MassUnitConverter;
 float LengthUnitConverter;
 float TimeUnitConverter;
-float GavityConstant;
+float GravityConstant;
 
 // Window globals
 static int Window;
@@ -213,8 +213,8 @@ void setInitailConditions()
 	printf("\n TimeUnitConverter = %e hours", TimeUnitConverter);
 	
 	// If we did everthing right the universal gravity constant should be 1.
-	GavityConstant = 1.0;
-	printf("\n The gavity constant = %f in our units", GavityConstant);
+	GravityConstant = 1.0;
+	printf("\n The gravity constant = %f in our units", GravityConstant);
 	
 	// All spheres are the same diameter and mass of Ceres so these should be 1..
 	SphereDiameter = 1.0;
@@ -320,48 +320,49 @@ void drawPicture()
 
 float4 centerOfMass()
 {
-	float totalMass;
 	float4 centerOfMass;
 	
+	// w holds the total mass of the system
+	centerOfMass.w = 0.0;
 	centerOfMass.x = 0.0;
 	centerOfMass.y = 0.0;
 	centerOfMass.z = 0.0;
-	totalMass = 0.0;
+	
 	
 	for(int i = 0; i < NUMBER_OF_BALLS; i++)
 	{
-    		centerOfMass.x += Position[i].x*SphereMass;
+    	centerOfMass.x += Position[i].x*SphereMass;
 		centerOfMass.y += Position[i].y*SphereMass;
 		centerOfMass.z += Position[i].z*SphereMass;
-		totalMass += SphereMass;
+		centerOfMass.w += SphereMass;
 	}
-	centerOfMass.x /= totalMass;
-	centerOfMass.y /= totalMass;
-	centerOfMass.z /= totalMass;
+	centerOfMass.x /= centerOfMass.w;
+	centerOfMass.y /= centerOfMass.w;
+	centerOfMass.z /= centerOfMass.w;
 	
 	return(centerOfMass);
 }
 
 float4 linearVelocity()
 {
-	float totalMass;
 	float4 linearVelocity;
 	
+	// w holds the total mass of the system
+	linearVelocity.w = 0.0;
 	linearVelocity.x = 0.0;
 	linearVelocity.y = 0.0;
 	linearVelocity.z = 0.0;
-	totalMass = 0.0;
 	
 	for(int i = 0; i < NUMBER_OF_BALLS; i++)
 	{
-    		linearVelocity.x += Velocity[i].x*SphereMass;
+    	linearVelocity.x += Velocity[i].x*SphereMass;
 		linearVelocity.y += Velocity[i].y*SphereMass;
 		linearVelocity.z += Velocity[i].z*SphereMass;
-		totalMass += SphereMass;
+		linearVelocity.w += SphereMass;
 	}
-	linearVelocity.x /= totalMass;
-	linearVelocity.y /= totalMass;
-	linearVelocity.z /= totalMass;
+	linearVelocity.x /= linearVelocity.w;
+	linearVelocity.y /= linearVelocity.w;
+	linearVelocity.z /= linearVelocity.w;
 	
 	return(linearVelocity);
 }
@@ -387,7 +388,7 @@ void zeroOutSystem()
 void getForces()
 {
 	float inOut;
-	float kSphere,kSphereReduction;
+	float pSphere,pSphereReduction;
 	float kWall, kWallReduction;
 	float4 d, unit, dv;
 	float magnitude;
@@ -404,22 +405,16 @@ void getForces()
 	
 	kWall = 20000.0;
 	kWallReduction = 0.2;
-	kSphere = 10000.0;
-	kSphereReduction = 0.5;
+	pSphere = 10000.0;
+	pSphereReduction = 0.5;
 	for(int i = 0; i < NUMBER_OF_BALLS; i++)
 	{	
-		if(25.0 < Position[i].x + SphereDiameter/2.0 && Position[i].x + SphereDiameter/2.0 < 26.0)
+		if(25.0 < Position[i].x + sphereRadius && Position[i].x + sphereRadius < 26.0)
 		{
-			if(-5.0 < Position[i].z && Position[i].z < 5.0 && -5.0 < Position[i].z && Position[i].z < 5.0)
+			if(fabs(Position[i].y) < 5.0 && fabs(Position[i].z) < 5.0)
 			{
-				if(0.0 < Velocity[i].x)
-				{
-					magnitude = (Position[i].x + SphereDiameter/2.0 - 25.0)*kWall;
-				}
-				else
-				{
-					magnitude = (Position[i].x + SphereDiameter/2.0 - 25.0)*kWall*kWallReduction;
-				}
+				magnitude = (Position[i].x + sphereRadius - 25.0)*kWall;
+				if(Velocity[i].x < 0.0) magnitude *= kWallReduction;
 				Force[i].x -= magnitude;
 			}
 		}
@@ -456,8 +451,8 @@ void getForces()
 				
 				// ??????????????????????????????????????????????
 				// Make this be a quadratic repulsion model.. 
-				if(inOut < 0.0) magnitude = kSphere*(SphereDiameter- d.w); // If inOut is negative the sphere are converging.
-				else magnitude = kSphereReduction*kSphere*(SphereDiameter- d.w); // If inOut is positive the sphere are diverging.
+				magnitude = pSphere*intersectionArea; // Calculate the magnitude as if inOut is negative, so the sphere are converging.
+				if(0.0 < inOut) magnitude *= pSphereReduction; // If inOut is positive the sphere are diverging, apply the reduction.
 				
 				// Doling out the force in the proper perfortions using unit vectors.
 				Force[i].x -= magnitude*unit.x;
@@ -470,27 +465,20 @@ void getForces()
 				
 				// This adds the gravity between asteroids but the gravity is lock in at what it 
 				// was at impact.
-				magnitude = GavityConstant*SphereMass*SphereMass/(SphereDiameter*SphereDiameter);
-				Force[i].x += magnitude*unit.x;
-				Force[i].y += magnitude*unit.y;
-				Force[i].z += magnitude*unit.z;
-				
-				Force[j].x -= magnitude*unit.x;
-				Force[j].y -= magnitude*unit.y;
-				Force[j].z -= magnitude*unit.z;
+				magnitude = GravityConstant*SphereMass*SphereMass/(SphereDiameter*SphereDiameter);
 			}
 			else
 			{
 				// This adds the gravity between asteroids when they are not touching.
-				magnitude = GavityConstant*SphereMass*SphereMass/(d.w*d.w);
-				Force[i].x += magnitude*unit.x;
-				Force[i].y += magnitude*unit.y;
-				Force[i].z += magnitude*unit.z;
-				
-				Force[j].x -= magnitude*unit.x;
-				Force[j].y -= magnitude*unit.y;
-				Force[j].z -= magnitude*unit.z;
+				magnitude = GravityConstant*SphereMass*SphereMass/(d.w*d.w);
 			}
+			Force[i].x += magnitude*unit.x;
+			Force[i].y += magnitude*unit.y;
+			Force[i].z += magnitude*unit.z;
+			
+			Force[j].x -= magnitude*unit.x;
+			Force[j].y -= magnitude*unit.y;
+			Force[j].z -= magnitude*unit.z;
 		}
 	}
 }
