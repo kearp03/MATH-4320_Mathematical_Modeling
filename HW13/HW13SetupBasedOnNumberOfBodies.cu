@@ -1,4 +1,4 @@
-//nvcc SetupBasedOnNumberOfBodiesFixed.cu -o bounce -lglut -lm -lGLU -lGL																													
+//nvcc SetupBasedOnNumberOfBodies.cu -o bounce -lglut -lm -lGLU -lGL
 //To stop hit "control c" in the window you launched it from.
 #include <iostream>
 #include <fstream>
@@ -197,7 +197,7 @@ void setInitailConditions()
 	double diameterOfCeres;
 	double densityOfCeres;
 	double volumeOfCeres;
-	double G = ????; //km^3/kg*hr^2
+	double G = 8.6498928e-13; //km^3/kg*hr^2
 	
 	// Seeding the random number generater.
 	srand((unsigned) time(&t));
@@ -212,14 +212,16 @@ void setInitailConditions()
 	// We are settting the length unit to be th diameter of Ceres.
 	// We are setting the time unit to be the such that the universal gravity constant is 1.
 	
-	massOfCeres = ????; // kg
-	diameterOfCeres = ????; // km
-	densityOfCeres = ????; // kg/km^3
-	volumeOfCeres = ????; // km^3
+	massOfCeres = 9.383e20; // kg
+	diameterOfCeres = 940; // km
+	volumeOfCeres = PI*pow(diameterOfCeres, 3)/6; // km^3
+	densityOfCeres = massOfCeres/volumeOfCeres; // kg/km^3
 	
-	MassUnitConverter = ????; // kg
-	LengthUnitConverter = ????; // km
-	TimeUnitConverter = ????; // hr
+	// Compute the unit converters
+	MassUnitConverter = massOfCeres/NUMBER_OF_BODIES; // kg
+	LengthUnitConverter = diameterOfCeres/cbrt(NUMBER_OF_BODIES); // km
+	TimeUnitConverter = 1/sqrt(G/pow(LengthUnitConverter, 3)*MassUnitConverter); //hr
+	// TimeUnitConverter = 1.0112; // hr
 	
 	printf("\n MassUnitConverter = %e kilograms", MassUnitConverter);
 	printf("\n LengthUnitConverter = %e kilometers", LengthUnitConverter);
@@ -433,7 +435,7 @@ void getForces()
 	{	
 		if(25.0 < Position[i].x + SphereDiameter/2.0 && Position[i].x + SphereDiameter/2.0 < 26.0)
 		{
-			if(-5.0 < Position[i].z && Position[i].z < 5.0 && -5.0 < Position[i].z && Position[i].z < 5.0)
+			if(-5.0 < Position[i].y && Position[i].y < 5.0 && -5.0 < Position[i].z && Position[i].z < 5.0)
 			{
 				if(0.0 < Velocity[i].x)
 				{
