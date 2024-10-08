@@ -1,4 +1,4 @@
-//nvcc SetupBasedOnNumberOfBodies.cu -o bounce -lglut -lm -lGLU -lGL
+//nvcc HW13SetupBasedOnNumberOfBodies.cu -o bounce -lglut -lm -lGLU -lGL
 //To stop hit "control c" in the window you launched it from.
 #include <iostream>
 #include <fstream>
@@ -14,7 +14,7 @@
 #include <curand.h>
 #include <curand_kernel.h>
 
-#define NUMBER_OF_BODIES 10
+#define NUMBER_OF_BODIES 95
 #define PI 3.14159
 using namespace std;
 
