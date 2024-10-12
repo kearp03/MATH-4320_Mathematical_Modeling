@@ -234,10 +234,23 @@ void setInitailConditions()
 	MassUnitConverter = massOfCeres/NUMBER_OF_BODIES; // kg
 	
 	// From the random masses you just did set all your corresponding radii
-	// BodyRadius[] = ???? 
+	// BodyRadius[] = ????
+	float sumRadii = 0.0;
+	for(int i = 0; i < NUMBER_OF_BODIES; i++)
+	{
+		BodyRadius[i] = diameterOfCeres*cbrt(BodyMass[i]/massOfCeres)/2.0;
+		sumRadii += bodyRadius[i];
+		BodyMass[i] /= MassUnitConverter;
+	}
 	
 	// Set your length unit
-	LengthUnitConverter = pow((massOfCeres*6.0/(PI*NUMBER_OF_BODIES*densityOfCeres)),1.0/3.0); // km
+	//LengthUnitConverter = pow((massOfCeres*6.0/(PI*NUMBER_OF_BODIES*densityOfCeres)),1.0/3.0); // km
+	LengthUnitConverter = sumRadii/NUMBER_OF_BODIES; // km
+	for(int i = 0; i < NUMBER_OF_BODIES; i++)
+	{
+		BodyRadius[i] /= LengthUnitConverter;
+	}
+
 	TimeUnitConverter = sqrt(LengthUnitConverter*LengthUnitConverter*LengthUnitConverter/(G*MassUnitConverter)); // hr
 	
 	printf("\n MassUnitConverter = %e kilograms", MassUnitConverter);
@@ -248,7 +261,7 @@ void setInitailConditions()
 	GravityConstant = 1.0;
 	printf("\n The gravity constant = %f in our units", GravityConstant);
 	
-	// All spheres are the same diameter and mass so these should be 1. Noy true
+	// All spheres are the same diameter and mass so these should be 1. Not true
 	// ??? don't need these.They will be close to one but not exactly one anymore.
 	// Also you will just need to replace all these in the code with your new ones.
 	// Have fun finding them all!!!
