@@ -1,4 +1,4 @@
-//nvcc HW15SetupRandomMasses.cu -o bounce -lglut -lm -lGLU -lGL																													
+//nvcc HW15SetupRandomMasses.cu -o bounce -lglut -lm -lGLU -lGL
 //To stop hit "control c" in the window you launched it from.
 #include <iostream>
 #include <fstream>
@@ -25,7 +25,7 @@ float4 Position[NUMBER_OF_BODIES], Velocity[NUMBER_OF_BODIES], Force[NUMBER_OF_B
 // ????? you will put your masses and radii in here.
 float BodyMass[NUMBER_OF_BODIES], BodyRadius[NUMBER_OF_BODIES];
 // You will need to get ride of these and replace them with the ones above.
-float SphereMass;
+// float SphereMass;
 // float SphereDiameter;
 float MaxVelocity;
 int Trace;
@@ -221,7 +221,7 @@ void setInitailConditions()
 	// ??????????
 	// Use random numbers to get all your different mass bodies
 	// BodyMass[i] = ????
-	float srn = 0.0;
+	float srn = 0.0, sumMass = 0.0;
 	for(int i = 0; i < NUMBER_OF_BODIES; i++)
 	{
 		BodyMass[i] = (float)rand()/(float)RAND_MAX;
@@ -229,29 +229,33 @@ void setInitailConditions()
 	}
 	for(int i = 0; i < NUMBER_OF_BODIES; i++){
 		BodyMass[i] *= massOfCeres/srn;
+		sumMass += BodyMass[i];
 	}
-	// ??? Set you mass unit
-	MassUnitConverter = massOfCeres/NUMBER_OF_BODIES; // kg
 	
 	// From the random masses you just did set all your corresponding radii
 	// BodyRadius[] = ????
-	float sumRadii = 0.0;
+	float sumRadii = 0.0; //km
 	for(int i = 0; i < NUMBER_OF_BODIES; i++)
 	{
-		BodyRadius[i] = diameterOfCeres*cbrt(BodyMass[i]/massOfCeres)/2.0;
-		sumRadii += bodyRadius[i];
-		BodyMass[i] /= MassUnitConverter;
+		// Calculate the radius of each body based on their mass
+		BodyRadius[i] = diameterOfCeres*cbrt(BodyMass[i]/massOfCeres)/2.0; //km
+		// Add up each radius so we can find the average
+		sumRadii += BodyRadius[i]; //km
 	}
-	
+	// ??? Set you mass unit
+	MassUnitConverter = sumMass/NUMBER_OF_BODIES; // kg
 	// Set your length unit
 	//LengthUnitConverter = pow((massOfCeres*6.0/(PI*NUMBER_OF_BODIES*densityOfCeres)),1.0/3.0); // km
-	LengthUnitConverter = sumRadii/NUMBER_OF_BODIES; // km
+	LengthUnitConverter = 2.0*sumRadii/NUMBER_OF_BODIES; // km
+	TimeUnitConverter = sqrt(LengthUnitConverter*LengthUnitConverter*LengthUnitConverter/(G*MassUnitConverter)); // hr
+
 	for(int i = 0; i < NUMBER_OF_BODIES; i++)
 	{
-		BodyRadius[i] /= LengthUnitConverter;
+		// Convert each mass from kg to SMU
+		BodyMass[i] /= MassUnitConverter; //kg -> SMU
+		// Convert each radius from km to SLU
+		BodyRadius[i] /= LengthUnitConverter; // km -> SLU
 	}
-
-	TimeUnitConverter = sqrt(LengthUnitConverter*LengthUnitConverter*LengthUnitConverter/(G*MassUnitConverter)); // hr
 	
 	printf("\n MassUnitConverter = %e kilograms", MassUnitConverter);
 	printf("\n LengthUnitConverter = %e kilometers", LengthUnitConverter);
@@ -266,7 +270,7 @@ void setInitailConditions()
 	// Also you will just need to replace all these in the code with your new ones.
 	// Have fun finding them all!!!
 	// SphereDiameter = 1.0;
-	SphereMass = 1.0;
+	// SphereMass = 1.0;
 	
 	// Making the size of the intial globe we use to place the bodies.
 	globeSize = 10.0;
@@ -377,10 +381,10 @@ float4 centerOfMass()
 	
 	for(int i = 0; i < NUMBER_OF_BODIES; i++)
 	{
-    	centerOfMass.x += Position[i].x*SphereMass;
-		centerOfMass.y += Position[i].y*SphereMass;
-		centerOfMass.z += Position[i].z*SphereMass;
-		totalMass += SphereMass;
+    	centerOfMass.x += Position[i].x*BodyMass[i];
+		centerOfMass.y += Position[i].y*BodyMass[i];
+		centerOfMass.z += Position[i].z*BodyMass[i];
+		totalMass += BodyMass[i];
 	}
 	centerOfMass.x /= totalMass;
 	centerOfMass.y /= totalMass;
@@ -401,10 +405,10 @@ float4 linearVelocity()
 	
 	for(int i = 0; i < NUMBER_OF_BODIES; i++)
 	{
-    	linearVelocity.x += Velocity[i].x*SphereMass;
-		linearVelocity.y += Velocity[i].y*SphereMass;
-		linearVelocity.z += Velocity[i].z*SphereMass;
-		totalMass += SphereMass;
+    	linearVelocity.x += Velocity[i].x*BodyMass[i];
+		linearVelocity.y += Velocity[i].y*BodyMass[i];
+		linearVelocity.z += Velocity[i].z*BodyMass[i];
+		totalMass += BodyMass[i];
 	}
 	linearVelocity.x /= totalMass;
 	linearVelocity.y /= totalMass;
@@ -497,7 +501,7 @@ void getForces()
 				intersectionArea = PI*(BodyRadius[j]*BodyRadius[j] - x*x);
 				
 				dv.x = Velocity[j].x - Velocity[i].x;
-				dv.y = Velocity[j].y - Velocity[i].y;
+				dv.y = Velocity[j].y - Velocity[i].y; 
 				dv.z = Velocity[j].z - Velocity[i].z;
 				inOut = d.x*dv.x + d.y*dv.y + d.z*dv.z;
 				if(inOut < 0.0) magnitude = kSphere*intersectionArea; // If inOut is negative the sphere are converging.
@@ -517,7 +521,7 @@ void getForces()
 				
 				// This adds the gravity between asteroids but the gravity is lock in at what it 
 				// was at impact.
-				magnitude = GravityConstant*SphereMass*SphereMass/((BodyRadius[i]+BodyRadius[j])*(BodyRadius[i]+BodyRadius[j]));
+				magnitude = GravityConstant*BodyMass[i]*BodyMass[j]/((BodyRadius[i]+BodyRadius[j])*(BodyRadius[i]+BodyRadius[j]));
 				Force[i].x += magnitude*unit.x;
 				Force[i].y += magnitude*unit.y;
 				Force[i].z += magnitude*unit.z;
@@ -529,7 +533,7 @@ void getForces()
 			else
 			{
 				// This adds the gravity between asteroids when they are not touching.
-				magnitude = GravityConstant*SphereMass*SphereMass/(d.w*d.w);
+				magnitude = GravityConstant*BodyMass[i]*BodyMass[j]/(d.w*d.w);
 				Force[i].x += magnitude*unit.x;
 				Force[i].y += magnitude*unit.y;
 				Force[i].z += magnitude*unit.z;
@@ -549,15 +553,15 @@ void updatePositions()
 		// These are the LeapFrog formulas.
 		if(RunTime == 0.0)
 		{
-			Velocity[i].x += (Force[i].x/SphereMass)*(Dt/2.0);
-			Velocity[i].y += (Force[i].y/SphereMass)*(Dt/2.0);
-			Velocity[i].z += (Force[i].z/SphereMass)*(Dt/2.0);
+			Velocity[i].x += (Force[i].x/BodyMass[i])*(Dt/2.0);
+			Velocity[i].y += (Force[i].y/BodyMass[i])*(Dt/2.0);
+			Velocity[i].z += (Force[i].z/BodyMass[i])*(Dt/2.0);
 		}
 		else
 		{
-			Velocity[i].x += (Force[i].x/SphereMass)*Dt;
-			Velocity[i].y += (Force[i].y/SphereMass)*Dt;
-			Velocity[i].z += (Force[i].z/SphereMass)*Dt;
+			Velocity[i].x += (Force[i].x/BodyMass[i])*Dt;
+			Velocity[i].y += (Force[i].y/BodyMass[i])*Dt;
+			Velocity[i].z += (Force[i].z/BodyMass[i])*Dt;
 		}
 
 		Position[i].x += Velocity[i].x*Dt;
