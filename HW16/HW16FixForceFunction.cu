@@ -1,4 +1,4 @@
-//nvcc HW15SetupRandomMasses.cu -o bounce -lglut -lm -lGLU -lGL
+//nvcc HW16FixForceFunction.cu -o bounce -lglut -lm -lGLU -lGL
 //To stop hit "control c" in the window you launched it from.
 #include <iostream>
 #include <fstream>
@@ -14,7 +14,7 @@
 #include <curand.h>
 #include <curand_kernel.h>
 
-#define NUMBER_OF_BODIES 95
+#define NUMBER_OF_BODIES 750
 #define PI 3.14159
 using namespace std;
 
@@ -276,7 +276,7 @@ void setInitailConditions()
 	globeSize = 10.0;
 	
 	// You get to pick this but it is nice to print it out in common units to get a feel for what it is.
-	MaxVelocity = 1.0;
+	MaxVelocity = 5.0;
 	printf("\n Max velocity = %f kilometers/hour or %f miles/hour", MaxVelocity*LengthUnitConverter/TimeUnitConverter, (MaxVelocity*LengthUnitConverter/TimeUnitConverter)*0.621371);
 	
 	for(int i = 0; i < NUMBER_OF_BODIES; i++)
@@ -459,7 +459,7 @@ void getForces()
 	kSphereReduction = 0.5;
 	for(int i = 0; i < NUMBER_OF_BODIES; i++)
 	{	
-		if(25.0 < Position[i].x + BodyRadius[i] && Position[i].x + BodyRadius[i] < 26.0)
+		if(25.0 < Position[i].x + BodyRadius[i] && Position[i].x + BodyRadius[i] < 25.25)
 		{
 			if(-5.0 < Position[i].y && Position[i].y < 5.0 && -5.0 < Position[i].z && Position[i].z < 5.0)
 			{
@@ -509,7 +509,7 @@ void getForces()
 				{
 					intersectionArea = PI*(BodyRadius[j]*BodyRadius[j] - x*x);
 				}
-				
+
 				dv.x = Velocity[j].x - Velocity[i].x;
 				dv.y = Velocity[j].y - Velocity[i].y; 
 				dv.z = Velocity[j].z - Velocity[i].z;
