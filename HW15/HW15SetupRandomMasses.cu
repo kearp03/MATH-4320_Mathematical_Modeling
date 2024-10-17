@@ -14,7 +14,7 @@
 #include <curand.h>
 #include <curand_kernel.h>
 
-#define NUMBER_OF_BODIES 95
+#define NUMBER_OF_BODIES 500
 #define PI 3.14159
 using namespace std;
 
