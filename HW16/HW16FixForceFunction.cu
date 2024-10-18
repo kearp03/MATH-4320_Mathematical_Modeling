@@ -14,8 +14,8 @@
 #include <curand.h>
 #include <curand_kernel.h>
 
-#define NUMBER_OF_BODIES 750
-#define PI 3.14159
+#define NUMBER_OF_BODIES 95
+#define PI 3.141592653
 using namespace std;
 
 float TotalRunTime;
@@ -24,9 +24,11 @@ float Dt;
 float4 Position[NUMBER_OF_BODIES], Velocity[NUMBER_OF_BODIES], Force[NUMBER_OF_BODIES], Color[NUMBER_OF_BODIES];
 // ????? you will put your masses and radii in here.
 float BodyMass[NUMBER_OF_BODIES], BodyRadius[NUMBER_OF_BODIES];
-// You will need to get ride of these and replace them with the ones above.
-// float SphereMass;
-// float SphereDiameter;
+
+float minRadius = BodyRadius[0]; //to keep track of the smallest body how it's behaving
+int minIndex = 0;
+float4 MaxForce = {0.0, 0.0, 0.0, 0.0};
+
 float MaxVelocity;
 int Trace;
 int Pause;
@@ -257,20 +259,26 @@ void setInitailConditions()
 		BodyRadius[i] /= LengthUnitConverter; // km -> SLU
 	}
 	
+	//find the smallest radius
+	minRadius = BodyRadius[0];
+	minIndex = 0;
+
+	for(int i = 1; i < NUMBER_OF_BODIES; i++)
+	{
+		if(BodyRadius[i] < minRadius)
+		{
+			minRadius = BodyRadius[i];
+			minIndex = i;
+		}
+	}
+	
 	printf("\n MassUnitConverter = %e kilograms", MassUnitConverter);
 	printf("\n LengthUnitConverter = %e kilometers", LengthUnitConverter);
 	printf("\n TimeUnitConverter = %e hours", TimeUnitConverter);
 	
 	// If we did everthing right the universal gravity constant should be 1.
-	GravityConstant = 1.0;
+	GravityConstant = 10.0;
 	printf("\n The gravity constant = %f in our units", GravityConstant);
-	
-	// All spheres are the same diameter and mass so these should be 1. Not true
-	// ??? don't need these.They will be close to one but not exactly one anymore.
-	// Also you will just need to replace all these in the code with your new ones.
-	// Have fun finding them all!!!
-	// SphereDiameter = 1.0;
-	// SphereMass = 1.0;
 	
 	// Making the size of the intial globe we use to place the bodies.
 	globeSize = 10.0;
@@ -281,7 +289,7 @@ void setInitailConditions()
 	
 	for(int i = 0; i < NUMBER_OF_BODIES; i++)
 	{
-		// Settting the balls randomly in a large sphere and not letting them be right on top of each other.
+		// Setting the balls randomly in a large sphere and not letting them be right on top of each other.
 		test = 0;
 		while(test == 0)
 		{
@@ -348,6 +356,14 @@ void drawPicture()
 			glutSolidSphere(BodyRadius[i], 30, 30);
 		glPopMatrix();
 	}
+
+	//draw the smallest body with a random color every frame
+	
+	Color[minIndex].x = ((float)rand()/(float)RAND_MAX);
+	Color[minIndex].y = ((float)rand()/(float)RAND_MAX);
+	Color[minIndex].z = ((float)rand()/(float)RAND_MAX);
+
+	glColor3d(Color[minIndex].x, Color[minIndex].y, Color[minIndex].z);
 	
 	// Drawing the wall.
 	glColor3d(1.0, 1.0, 0.75);
@@ -554,6 +570,18 @@ void getForces()
 			}
 		}
 	}
+	if(fabs(Force[minIndex].x) > MaxForce.x)
+	{
+		MaxForce.x = Force[minIndex].x;
+	}
+	if(fabs(Force[minIndex].y) > MaxForce.y)
+	{
+		MaxForce.y = Force[minIndex].y;
+	}
+	if(fabs(Force[minIndex].z) > MaxForce.z)
+	{
+		MaxForce.z = Force[minIndex].z;
+	}
 }
 
 void updatePositions()
@@ -676,6 +704,17 @@ void terminalPrint()
 	printf("\n\n Time = %f \033[0;34mhours", RunTime*TimeUnitConverter);
 	printf("\033[0m");
 	printf("\n");
+
+	//print the smallest body radius, mass, force.x .y .z, and velocity.x .y .z each on a new line
+	printf("\n Smallest Body Radius: %f", BodyRadius[minIndex]);
+	printf("\n Smallest Body Mass: %f", BodyMass[minIndex]);
+	printf("\n Smallest Body Force: x: %f, y: %f, z: %f", Force[minIndex].x, Force[minIndex].y, Force[minIndex].z);
+	printf("\n Smallest Body Velocity: x: %f, y: %f, z: %f", Velocity[minIndex].x, Velocity[minIndex].y, Velocity[minIndex].z);
+	printf("\n Smallest Body Position: x: %f, y: %f, z: %f", Position[minIndex].x, Position[minIndex].y, Position[minIndex].z);
+	printf("\n Smallest Body Maximum Force: x: %f, y: %f, z: %f", MaxForce.x, MaxForce.y, MaxForce.z);
+
+	printf("\n");
+
 }
 
 
