@@ -277,14 +277,14 @@ void setInitailConditions()
 	printf("\n TimeUnitConverter = %e hours", TimeUnitConverter);
 	
 	// If we did everthing right the universal gravity constant should be 1.
-	GravityConstant = 10.0;
+	GravityConstant = 1.0;
 	printf("\n The gravity constant = %f in our units", GravityConstant);
 	
 	// Making the size of the intial globe we use to place the bodies.
 	globeSize = 10.0;
 	
 	// You get to pick this but it is nice to print it out in common units to get a feel for what it is.
-	MaxVelocity = 5.0;
+	MaxVelocity = 1.0;
 	printf("\n Max velocity = %f kilometers/hour or %f miles/hour", MaxVelocity*LengthUnitConverter/TimeUnitConverter, (MaxVelocity*LengthUnitConverter/TimeUnitConverter)*0.621371);
 	
 	for(int i = 0; i < NUMBER_OF_BODIES; i++)
@@ -519,7 +519,6 @@ void getForces()
 				{
 					float maxRadius = BodyRadius[i] > BodyRadius[j] ? BodyRadius[i] : BodyRadius[j];
 					intersectionArea = PI*(maxRadius*maxRadius - d.w*d.w);
-					// increase k proportional to the distance between centers -> smaller distance = greater force
 				}
 				else
 				{
@@ -530,6 +529,9 @@ void getForces()
 				dv.y = Velocity[j].y - Velocity[i].y; 
 				dv.z = Velocity[j].z - Velocity[i].z;
 				inOut = d.x*dv.x + d.y*dv.y + d.z*dv.z;
+
+				kSphere = 5000.0*(BodyMass[i] + BodyMass[j]);
+
 				if(inOut < 0.0) magnitude = kSphere*intersectionArea; // If inOut is negative the sphere are converging.
 				else magnitude = kSphereReduction*kSphere*intersectionArea; // If inOut is positive the sphere are diverging.
 				
