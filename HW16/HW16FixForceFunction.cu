@@ -329,7 +329,7 @@ void setInitailConditions()
 		Force[i].y = 0.0;
 		Force[i].z = 0.0;
 	}
-	
+
 	// Making it run for 10 days.
 	// Taking days to hours then to our units.
 	TotalRunTime = 10.0*24.0/TimeUnitConverter;
@@ -513,24 +513,30 @@ void getForces()
 					printf("\n Spheres %d and %d got to close. Make your sphere repultion stronger\n", i, j);
 					exit(0);
 				}
-				
-				float x = (BodyRadius[j]*BodyRadius[j] - BodyRadius[i]*BodyRadius[i] + d.w*d.w)/(2*d.w);
-				if(x < 0.0)
-				{
-					float maxRadius = BodyRadius[i] > BodyRadius[j] ? BodyRadius[i] : BodyRadius[j];
-					intersectionArea = PI*(maxRadius*maxRadius - d.w*d.w);
-				}
-				else
-				{
-					intersectionArea = PI*(BodyRadius[j]*BodyRadius[j] - x*x);
-				}
+				// float maxRadius = BodyRadius[i] > BodyRadius[j] ? BodyRadius[i] : BodyRadius[j];
+				// float minRadius = BodyRadius[i] <= BodyRadius[j] ? BodyRadius[i] : BodyRadius[j];
+				// float x = (maxRadius*maxRadius - minRadius*minRadius + d.w*d.w)/(2*d.w);
+				// if(x < 0.0)
+				// {
+				// 	// float maxRadius = BodyRadius[i] > BodyRadius[j] ? BodyRadius[i] : BodyRadius[j];
+				// 	intersectionArea = PI*minRadius*minRadius;
+				// 	// intersectionArea = PI*(maxRadius*maxRadius - d.w*d.w);
+				// }
+				// else
+				// {
+					// intersectionArea = PI*(maxRadius*maxRadius - x*x);
+				// }
+				// DO NOT UNCOMMENT!!!!! MAKES BALLS WANT TO SOCIAL DISTANCE, ITS 2024 GOSHDANGIT
+				float s = (BodyRadius[i] + BodyRadius[j] + d.w)/2.0;
+				intersectionArea = PI*sqrt((s-d.w)*(s-BodyRadius[i])*(s-BodyRadius[j])*s);
 
 				dv.x = Velocity[j].x - Velocity[i].x;
 				dv.y = Velocity[j].y - Velocity[i].y; 
 				dv.z = Velocity[j].z - Velocity[i].z;
 				inOut = d.x*dv.x + d.y*dv.y + d.z*dv.z;
 
-				kSphere = 5000.0*(BodyMass[i] + BodyMass[j]);
+				// kSphere = 5000.0*(BodyMass[i] + BodyMass[j]);
+				kSphere = 2000.0*(BodyRadius[i] + BodyRadius[j]);
 
 				if(inOut < 0.0) magnitude = kSphere*intersectionArea; // If inOut is negative the sphere are converging.
 				else magnitude = kSphereReduction*kSphere*intersectionArea; // If inOut is positive the sphere are diverging.
