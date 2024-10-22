@@ -1,4 +1,4 @@
-//nvcc HW18FixForceFunction.cu -o bounce -lglut -lm -lGLU -lGL
+//nvcc HW16FixForceFunction.cu -o bounce -lglut -lm -lGLU -lGL
 //To stop hit "control c" in the window you launched it from.
 #include <iostream>
 #include <fstream>
@@ -472,7 +472,7 @@ void getForces()
 	kWall = 20000.0;
 	kWallReduction = 0.2;
 	kSphere = 10000.0;
-	kSphereReduction = 0.5;
+	kSphereReduction = 0.2;
 	for(int i = 0; i < NUMBER_OF_BODIES; i++)
 	{	
 		if(25.0 < Position[i].x + BodyRadius[i] && Position[i].x + BodyRadius[i] < 25.25)
@@ -513,40 +513,44 @@ void getForces()
 					printf("\n Spheres %d and %d got to close. Make your sphere repultion stronger\n", i, j);
 					exit(0);
 				}
-				float maxRadius = BodyRadius[i] > BodyRadius[j] ? BodyRadius[i] : BodyRadius[j];
-				float minRadius = BodyRadius[i] <= BodyRadius[j] ? BodyRadius[i] : BodyRadius[j];
-				// float x = (maxRadius*maxRadius - minRadius*minRadius + d.w*d.w)/(2*d.w);
-				// if(x < 0.0)
-				// {
-				// 	// float maxRadius = BodyRadius[i] > BodyRadius[j] ? BodyRadius[i] : BodyRadius[j];
-				// 	intersectionArea = PI*minRadius*minRadius;
-				// 	// intersectionArea = PI*(maxRadius*maxRadius - d.w*d.w);
-				// }
-				// else
-				// {
-					// intersectionArea = PI*(maxRadius*maxRadius - x*x);
-				// }
-				
-				float s;
-				float maxDist = sqrt(maxRadius*maxRadius + minRadius*minRadius);
-				if(d.w > maxDist)
+				float maxRadius = fmax(BodyRadius[i], BodyRadius[j]);
+				float minRadius = fmin(BodyRadius[i], BodyRadius[j]);
+
+				float x = (d.w*d.w - maxRadius*maxRadius + minRadius*minRadius)/(2*d.w);
+
+				if (x < 0.0)
 				{
-					s = (BodyRadius[i] + BodyRadius[j] + maxDist)/2.0;
-					intersectionArea = PI*sqrt((s-maxDist)*(s-BodyRadius[i])*(s-BodyRadius[j])*s);
+					intersectionArea = PI*minRadius*minRadius;
+				}
+				else 
+				{
+					intersectionArea = PI*(minRadius*minRadius - x*x);
+				}
+				/*
+				float x = (maxRadius*maxRadius - minRadius*minRadius + d.w*d.w)/(2*d.w);
+				if(x < 0.0)
+				{
+					// float maxRadius = BodyRadius[i] > BodyRadius[j] ? BodyRadius[i] : BodyRadius[j];
+					intersectionArea = PI*minRadius*minRadius;
+					// intersectionArea = PI*(maxRadius*maxRadius - d.w*d.w);
 				}
 				else
 				{
-					s = (BodyRadius[i] + BodyRadius[j] + d.w)/2.0;
-					intersectionArea = PI*sqrt((s-d.w)*(s-BodyRadius[i])*(s-BodyRadius[j])*s);
+					intersectionArea = PI*(maxRadius*maxRadius - x*x);
 				}
+					*/
+				// DO NOT UNCOMMENT!!!!! MAKES BALLS WANT TO SOCIAL DISTANCE, ITS 2024 GOSHDANGIT
+				// jk, Saul good man
+				// float s = (BodyRadius[i] + BodyRadius[j] + d.w)/2.0;
+				// intersectionArea = PI*sqrt((s-d.w)*(s-BodyRadius[i])*(s-BodyRadius[j])*s);
 
 				dv.x = Velocity[j].x - Velocity[i].x;
 				dv.y = Velocity[j].y - Velocity[i].y; 
 				dv.z = Velocity[j].z - Velocity[i].z;
 				inOut = d.x*dv.x + d.y*dv.y + d.z*dv.z;
 
-				kSphere = 5000.0*(BodyMass[i] + BodyMass[j]);
-				// kSphere = 2000.0*(BodyRadius[i] + BodyRadius[j]);
+				// kSphere = 5000.0*(BodyMass[i] + BodyMass[j]);
+				kSphere = 1000 * (BodyRadius[i] + BodyRadius[j]);
 
 				if(inOut < 0.0) magnitude = kSphere*intersectionArea; // If inOut is negative the sphere are converging.
 				else magnitude = kSphereReduction*kSphere*intersectionArea; // If inOut is positive the sphere are diverging.
@@ -730,6 +734,7 @@ void terminalPrint()
 	printf("\n Smallest Body Velocity: x: %f, y: %f, z: %f", Velocity[minIndex].x, Velocity[minIndex].y, Velocity[minIndex].z);
 	printf("\n Smallest Body Position: x: %f, y: %f, z: %f", Position[minIndex].x, Position[minIndex].y, Position[minIndex].z);
 	printf("\n Smallest Body Maximum Force: x: %f, y: %f, z: %f", MaxForce.x, MaxForce.y, MaxForce.z);
+	
 
 	printf("\n");
 
