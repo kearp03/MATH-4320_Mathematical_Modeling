@@ -518,19 +518,13 @@ void getForces()
 				}
 				
 				// Finding which body is largest.
-				if(BodyRadius[j] < BodyRadius[i])
-				{
-					????
-				}
-				else
-				{
-					????
-				}
+				r1 = fmax(BodyRadius[i], BodyRadius[j]);
+				r2 = fmin(BodyRadius[i], BodyRadius[j]);
 				
 				// Finding the intection area.
-				// The intersection area gets too large (If one spherez goes into the other).
+				// The intersection area gets too large (If one sphere goes into the other).
 				// Set it as the radius of the smaller sphere.
-				temp = ????;
+				temp = (d.w*d.w - r1*r1 + r2*r2)/(2.0*d.w);
 				if(0.0 < temp)
 				{
 					intersectionArea = PI*(r2*r2 - temp*temp);
