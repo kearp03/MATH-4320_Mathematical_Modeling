@@ -15,7 +15,7 @@
 #include <curand_kernel.h>
 
 #define NUMBER_OF_BODIES 6
-#define PI 3.14159
+#define PI 3.14159265358979323846
 using namespace std;
 
 float TotalRunTime;
@@ -507,14 +507,14 @@ void getForces()
 			if (d.w <= 1.08)
 			{
 				// This adds the depletion force between bodies
-				magnitude = ForceMagnitude;
-				Force[i].x += magnitude*unit.x;
-				Force[i].y += magnitude*unit.y;
-				Force[i].z += magnitude*unit.z;
+				// magnitude = ForceMagnitude;
+				Force[i].x += ForceMagnitude*unit.x;
+				Force[i].y += ForceMagnitude*unit.y;
+				Force[i].z += ForceMagnitude*unit.z;
 				
-				Force[j].x -= magnitude*unit.x;
-				Force[j].y -= magnitude*unit.y;
-				Force[j].z -= magnitude*unit.z;
+				Force[j].x -= ForceMagnitude*unit.x;
+				Force[j].y -= ForceMagnitude*unit.y;
+				Force[j].z -= ForceMagnitude*unit.z;
 			}
 		}
 	}
