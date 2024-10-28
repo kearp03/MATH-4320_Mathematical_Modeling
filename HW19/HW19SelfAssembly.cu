@@ -247,7 +247,7 @@ void setInitailConditions()
 	
 	MassUnitConverter = 1; // pg
 	LengthUnitConverter = polyDiameter; // ug
-	TimeUnitConverter = 10e-4; // hr
+	TimeUnitConverter = 10e-4; // seconds
 	
 	printf("\n MassUnitConverter = %e picograms", MassUnitConverter);
 	printf("\n LengthUnitConverter = %e micrometers", LengthUnitConverter);
@@ -263,7 +263,7 @@ void setInitailConditions()
 	}
 	
 	// The magnitude of the depletion force is the slope from the potential well to the d-axis.
-	ForceMagnitude = potentialWell/0.08;
+	ForceMagnitude = potentialWell/0.08; // pg*um^2/ls^2/um = pg*um/ls^2
 	printf("\n The magnitude of the depletion force = %f in our units", ForceMagnitude);
 	
 	// All spheres are the same diameter and mass so these should be 1..
@@ -277,7 +277,7 @@ void setInitailConditions()
 	
 	for(int i = 0; i < NUMBER_OF_BODIES; i++)
 	{
-		// Settting the balls randomly in a large sphere and not letting them be right on top of each other.
+		// Setting the balls randomly in a large sphere and not letting them be right on top of each other.
 		test = 0;
 		tryCount = 0;
 		while(test == 0)
@@ -327,9 +327,8 @@ void setInitailConditions()
 		Force[i].z = 0.0;
 	}
 	
-	// Making it run for 10 days.
-	// Taking days to hours then to our units.
-	TotalRunTime = 10.0*24.0/TimeUnitConverter;
+	// Making it run for 100 seconds.
+	TotalRunTime = 100.0/TimeUnitConverter;
 	RunTime = 0.0;
 	Dt = 0.001;
 	// How many time steps between termenal prints
