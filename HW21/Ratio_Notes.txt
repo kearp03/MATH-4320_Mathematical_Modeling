@@ -1,0 +1,14 @@
+CentralForce = -0.525*DepletionForce; -> Ratio 23.6 after 26463 iterations; 0 others
+CentralForce = -0.4*DepletionForce; -> Ratio 31.08 after 25479 iterations; 0 others
+CentralForce = -0.3*DepletionForce; -> 36.04 after 26597 iterations; 0 others
+CentralForce = -0.2*DepletionForce; -> 43.25 after 26997; 0 others
+CentralForce = -0.1*DepletionForce; -> Ratio 44.37 after 59575 iterations; 0 others
+CentralForce = -0.09*DepletionForce; -> Ratio 43.94 after 25259 iterations; 0 others
+CentralForce = -0.05*DepletionForce; -> Ratio 36.64 after 29254 iterations; 777 others
+CentralForce = -0.04*DepletionForce; -> Ratio 31.67 after 25293 iterations; 0 others
+CentralForce = -0.03*DepletionForce; -> Ratio 26.89 after 16433 iterations; 1 other
+CentralForce = -0.025*DepletionForce; -> Ratio 24.01 after 12765 iterations; 3 others
+CentralForce = -0.02*DepletionForce; -> Ratio 24.12,25.3 after 15400,29150 iterations; 0 others
+CentralForce = -0.015*DepletionForce; -> Ratio 30.9 after 13754 iterations; 6 others
+CentralForce = -0.01*DepletionForce; -> Ratio 44.9 after 15764 iterations; 10 others
+CentralForce = -0.005*DepletionForce; -> Ratio 86.9 after 15330 iterations; 28 others
