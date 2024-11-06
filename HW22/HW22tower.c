@@ -137,11 +137,11 @@ void draw_picture()
 	//Drawing the nodes
 	for(i = 0; i < N; i++)
 	{
-		if(i == 0) glColor3d(1.0,1.0,1.0);
-		if(i == 1) glColor3d(0.0,1.0,0.0);
-		if(i == 2) glColor3d(1.0,0.0,0.0);
-		if(i == 3) glColor3d(1.0,0.0,1.0);
-		if(i == 4) glColor3d(0.0,1.0,1.0);
+		if(i == 0) glColor3d(1.0,1.0,1.0); // white
+		if(i == 1) glColor3d(0.0,1.0,0.0); // green
+		if(i == 2) glColor3d(1.0,0.0,0.0); // red
+		if(i == 3) glColor3d(1.0,0.0,1.0); // purple
+		if(i == 4) glColor3d(0.0,1.0,1.0); // cyan
 		glPushMatrix();
 		glTranslatef(Px[i], Py[i], Pz[i]);
 		glutSolidSphere(SHERE_RADIUS,20,20);
