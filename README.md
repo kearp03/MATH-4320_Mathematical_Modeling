@@ -1,4 +1,4 @@
-# MATH-4320_Mathematical_Modeling
+# MATH-4320 Mathematical Modeling
 This repository contains source code for the MATH 4320 Mathematical Modeling homework taken at Tarleton State University during the Fall semester of 2024, taught by Dr. Bryant Wyatt. This course focused on developing techniques to model physical phenomenon in a coding environment. An overview of topics covered can be found below.
 
 ### Topics Covered
