@@ -6,13 +6,14 @@
 #include <stdlib.h>
 
 #define N 5
+#define EDGES 9
 
 #define XWindowSize 2500
 #define YWindowSize 2500
 
 #define DRAW 10
 #define PRINT 100
-#define DAMP 0.3
+#define DAMP 0.5
 
 #define G 1.0
 
@@ -27,31 +28,28 @@
 #define SHERE_RADIUS 0.2
 #define DROP_HIEGHT 5.0
 
+// Define a struct to hold the edge attributes, and name it edge_atributes
+typedef struct edge_atributes{
+	int to;
+	int from;
+	float NaturalLength;
+	float CompressionStrength;
+	float TensionStrength;
+	float Red;
+	float Green;
+	float Blue;
+} edge_atributes;
+
 // Globals
 float Px[N], Py[N], Pz[N];
 float Vx[N], Vy[N], Vz[N];
 float Fx[N], Fy[N], Fz[N];
-float Mass[N], CompressionStrength[N][N], TensionStrength[N][N], NaturalLength[N][N]; 
-float Red[N][N], Green[N][N], Blue[N][N];
+float Mass[N];
+edge_atributes Edges[EDGES];
 
 void set_initail_conditions()
 {
-	int i,j;
-	
-	//Zeroing all matrices
-	for(i = 0; i < N; i++)
-	{
-		for(j = 0; j < N; j++)
-		{
-			CompressionStrength[i][j] = 0.0;
-			TensionStrength[i][j] = 0.0;
-			NaturalLength[i][j] = 0.0;
-			
-			Red[i][j] = 0.0;
-			Green[i][j] = 0.0;
-			Blue[i][j] = 0.0;
-		}
-	}
+	int i;
 	
 	//Setting node masses
 	for(i = 0; i < N; i++)
@@ -67,42 +65,56 @@ void set_initail_conditions()
 		Vz[i] = 0.0;
 	}
 	
-	//Setting connector attributes (most of the matrix is wasted)
-	CompressionStrength[0][1] = 10.0;
-	TensionStrength[0][1] = 10.0;
-	NaturalLength[0][1] = 2.0;
-	
-	CompressionStrength[0][2] = 10.0;
-	TensionStrength[0][2] = 10.0;
-	NaturalLength[0][2] = 2.0;
-	
-	CompressionStrength[0][3] = 10.0;
-	TensionStrength[0][3] = 10.0;
-	NaturalLength[0][3] = 2.0;
-	
-	CompressionStrength[1][2] = 10.0;
-	TensionStrength[1][2] = 10.0;
-	NaturalLength[1][2] = 2.0;
-	
-	CompressionStrength[1][3] = 10.0;
-	TensionStrength[1][3] = 10.0;
-	NaturalLength[1][3] = 2.0;
-	
-	CompressionStrength[2][3] = 10.0;
-	TensionStrength[2][3] = 10.0;
-	NaturalLength[2][3] = 2.0;
+	//Setting connector attributes
+	float compStrength = 100.0;
+	float tenStrength = 50.0;
 
-	CompressionStrength[0][4] = 10.0;
-	TensionStrength[0][4] = 10.0;
-	NaturalLength[0][4] = 2.0;
+	// Edge from 0 to 1
+	Edges[0].from = 0;
+	Edges[0].to = 1;
 
-	CompressionStrength[1][4] = 10.0;
-	TensionStrength[1][4] = 10.0;
-	NaturalLength[1][4] = 2.0;
+	// Edge from 0 to 2
+	Edges[1].from = 0;
+	Edges[1].to = 2;
 
-	CompressionStrength[2][4] = 10.0;
-	TensionStrength[2][4] = 10.0;
-	NaturalLength[2][4] = 2.0;
+	// Edge from 0 to 3
+	Edges[2].from = 0;
+	Edges[2].to = 3;
+	
+	// Edge from 1 to 2
+	Edges[3].from = 1;
+	Edges[3].to = 2;
+
+	// Edge from 1 to 3
+	Edges[4].from = 1;
+	Edges[4].to = 3;
+
+	// Edge from 2 to 3
+	Edges[5].from = 2;
+	Edges[5].to = 3;
+
+	// Edge from 0 to 4
+	Edges[6].from = 0;
+	Edges[6].to = 4;
+
+	// Edge from 1 to 4
+	Edges[7].from = 1;
+	Edges[7].to = 4;
+
+	// Edge from 2 to 4
+	Edges[8].from = 2;
+	Edges[8].to = 4;
+
+	// Setting all edge attributes to the same values
+	for(i = 0; i < EDGES; i++)
+	{
+		Edges[i].CompressionStrength = compStrength;
+		Edges[i].TensionStrength = tenStrength;
+		Edges[i].NaturalLength = 2.0;
+		Edges[i].Red = 0.0;
+		Edges[i].Green = 0.0;
+		Edges[i].Blue = 0.0;
+	}
 	
 	//Setting node positions
 	Px[0] = 0.0;
@@ -150,51 +162,14 @@ void draw_picture()
 	
 	//Drawing the Connectors (red if compressed, blue is stretched)
 	glLineWidth(8.0);
-	glColor3d(Red[0][1],Green[0][1],Blue[0][1]);
-	glBegin(GL_LINE_STRIP);
-		glVertex3f(Px[0], Py[0], Pz[0]);  
-		glVertex3f(Px[1], Py[1], Pz[1]);   
-	glEnd();
-	glColor3d(Red[0][2],Green[0][2],Blue[0][2]);
-	glBegin(GL_LINE_STRIP);
-		glVertex3f(Px[0], Py[0], Pz[0]);   
-		glVertex3f(Px[2], Py[2], Pz[2]); 
-	glEnd();
-	glColor3d(Red[0][3],Green[0][3],Blue[0][3]);
-	glBegin(GL_LINE_STRIP);
-		glVertex3f(Px[0], Py[0], Pz[0]);   
-		glVertex3f(Px[3], Py[3], Pz[3]); 
-	glEnd();
-	glColor3d(Red[1][2],Green[1][2],Blue[1][2]);
-	glBegin(GL_LINE_STRIP);
-		glVertex3f(Px[1], Py[1], Pz[1]);   
-		glVertex3f(Px[2], Py[2], Pz[2]); 
-	glEnd();
-	glColor3d(Red[1][3],Green[1][3],Blue[1][3]);
-	glBegin(GL_LINE_STRIP);
-		glVertex3f(Px[1], Py[1], Pz[1]);   
-		glVertex3f(Px[3], Py[3], Pz[3]); 
-	glEnd();
-	glColor3d(Red[2][3],Green[2][3],Blue[2][3]);
-	glBegin(GL_LINE_STRIP);
-		glVertex3f(Px[2], Py[2], Pz[2]);   
-		glVertex3f(Px[3], Py[3], Pz[3]); 
-	glEnd();
-	glColor3d(Red[0][4],Green[0][4],Blue[0][4]);
-	glBegin(GL_LINE_STRIP);
-		glVertex3f(Px[0], Py[0], Pz[0]);   
-		glVertex3f(Px[4], Py[4], Pz[4]);
-	glEnd();
-	glColor3d(Red[1][4],Green[1][4],Blue[1][4]);
-	glBegin(GL_LINE_STRIP);
-		glVertex3f(Px[1], Py[1], Pz[1]);   
-		glVertex3f(Px[4], Py[4], Pz[4]);
-	glEnd();
-	glColor3d(Red[2][4],Green[2][4],Blue[2][4]);
-	glBegin(GL_LINE_STRIP);
-		glVertex3f(Px[2], Py[2], Pz[2]);   
-		glVertex3f(Px[4], Py[4], Pz[4]);
-	glEnd();
+	for(int i = 0; i < EDGES; i++)
+	{
+		glColor3d(Edges[i].Red, Edges[i].Green, Edges[i].Blue);
+		glBegin(GL_LINE_STRIP);
+			glVertex3f(Px[Edges[i].from], Py[Edges[i].from], Pz[Edges[i].from]);   
+			glVertex3f(Px[Edges[i].to], Py[Edges[i].to], Pz[Edges[i].to]); 
+		glEnd();
+	}
 	
 	//Drawing the flooor
 	glLineWidth(1.0);
@@ -233,21 +208,21 @@ void draw_picture()
 	glutSwapBuffers();
 }
 
-float get_force(int i, int j, float separation)
+float get_force(int i, float separation)
 {
-	if(separation <= NaturalLength[i][j])
+	if(separation <= Edges[i].NaturalLength)
 	{
-		Red[i][j] = 1.0;
-		Green[i][j] = 0.0;
-		Blue[i][j] = 0.0;
-		return(CompressionStrength[i][j]*(separation - NaturalLength[i][j]));
+		Edges[i].Red = 1.0;
+		Edges[i].Green = 0.0;
+		Edges[i].Blue = 0.0;
+		return(Edges[i].CompressionStrength*(separation - Edges[i].NaturalLength));
 	}
 	else
 	{
-		Red[i][j] = 0.0;
-		Green[i][j] = 0.0;
-		Blue[i][j] = 1.0;
-		return(TensionStrength[i][j]*(separation - NaturalLength[i][j]));
+		Edges[i].Red = 0.0;
+		Edges[i].Green = 0.0;
+		Edges[i].Blue = 1.0;
+		return(Edges[i].TensionStrength*(separation - Edges[i].NaturalLength));
 	}
 }
 
@@ -258,7 +233,7 @@ void n_body()
 	int    tdraw = 0; 
 	int    tprint = 0;
 	float  time = 0.0;
-	int i,j;
+	int i;
 	
 	dt = DT;
 
@@ -271,29 +246,28 @@ void n_body()
 			Fz[i] = 0.0;
 		}
 		
+		for(i = 0; i < EDGES; i++)
+		{
+			//Finding the distance between nodes.
+			dx = Px[Edges[i].to] - Px[Edges[i].from];
+			dy = Py[Edges[i].to] - Py[Edges[i].from];
+			dz = Pz[Edges[i].to] - Pz[Edges[i].from];
+			d2 = dx*dx + dy*dy + dz*dz;
+			d  = sqrt(d2);
+
+			//Getting the magnitude of the force caused by node positions.
+			force_mag  =  get_force(i, d);
+
+			//Seperating into x, y, z components
+			Fx[Edges[i].from] += force_mag*dx/d;
+			Fx[Edges[i].to] -= force_mag*dx/d;
+			Fy[Edges[i].from] += force_mag*dy/d;
+			Fy[Edges[i].to] -= force_mag*dy/d;
+			Fz[Edges[i].from] += force_mag*dz/d;
+			Fz[Edges[i].to] -= force_mag*dz/d;
+		}
 		for(i = 0; i < N; i++)
 		{
-			for(j = i+1; j < N; j++)
-			{
-				//Finding the distance between nodes.
-				dx = Px[j] - Px[i];
-				dy = Py[j] - Py[i];
-				dz = Pz[j] - Pz[i];
-				d2 = dx*dx + dy*dy + dz*dz;
-				d  = sqrt(d2);
-				
-				//Getting the magnitude of the force caused by node positions.
-				force_mag  =  get_force(i, j, d);
-				
-				//Seperating into x, y, z components 
-				Fx[i] += force_mag*dx/d;
-				Fx[j] -= force_mag*dx/d;
-				Fy[i] += force_mag*dy/d;
-				Fy[j] -= force_mag*dy/d;
-				Fz[i] += force_mag*dz/d;
-				Fz[j] -= force_mag*dz/d;
-			}
-			
 			//Adding in the force of gravity
 			Fy[i] += -G;
 			
