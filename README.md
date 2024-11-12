@@ -5,7 +5,7 @@ This repository contains source code for the MATH 4320 Mathematical Modeling hom
  - Building "Digital Twins" of Real World Phenomenon
  - Particle Modeling
  - Numerical Methods for 2nd order ODEs (Leap Frog Formulas)
- - Unit Conversion
+ - Unit Conversion and Simulation Units (Stable Numerical Calculations)
  - Asteroid Formation and Collision
  - Force Function Derivation
  - Self Assembly of Particles
