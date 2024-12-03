@@ -27,6 +27,6 @@ When a bash script is provided in a folder, this excecution in implimented in th
 chmod 755 compileRun.sh
 
 # Execute the bash script
-./compilerRun.sh
+./compileRun.sh
 ```
-You need to give executable permission only once. Everytime afterwards you need only to execute the file.
+You need to give executable permission only once. Afterwards you need only to execute the file.
